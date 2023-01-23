@@ -9,7 +9,7 @@ parse.add_argument('-o', help="图片输出目录,默认为当前目录下imgs",
 parse.add_argument('-s', '--size', type=int, help="输出图片的像素大小", default=50)
 
 args = parse.parse_args()
-os.makedirs("simkai", exist_ok=True)
+os.makedirs("data/fonts/simkai", exist_ok=True)
 
 
 def uni_2_png(txt, font=args.f, img_size=args.size):

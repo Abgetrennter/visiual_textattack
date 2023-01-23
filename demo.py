@@ -3,18 +3,24 @@ import nltk
 from nltk.sentiment.vader import SentimentIntensityAnalyzer
 import numpy as np
 import datasets
-nltk.set_proxy(r'http://127.0.0.1:7890/')
-# nltk.download()
-import ssl
+# nltk.set_proxy(r'http://127.0.0.1:7890/')
+# # nltk.download()
+# import ssl
+#
+# try:
+#     _create_unverified_https_context = ssl._create_unverified_context
+# except AttributeError:
+#     pass
+# else:
+#     ssl._create_default_https_context = _create_unverified_https_context
+#
+# nltk.download('vader_lexicon')
+import urllib.request
 
-try:
-    _create_unverified_https_context = ssl._create_unverified_context
-except AttributeError:
-    pass
-else:
-    ssl._create_default_https_context = _create_unverified_https_context
+# proxy = urllib.request.ProxyHandler({'http': "127.0.0.1:7890", 'https': "127.0.0.1:7890"})
+# opener = urllib.request.build_opener(proxy, urllib.request.HTTPHandler)
+# urllib.request.install_opener(opener)
 
-nltk.download('vader_lexicon')
 
 def make_model():
     class MyClassifier(OpenAttack.Classifier):
@@ -52,7 +58,7 @@ def main():
 
     print("Build model")
     clsf = make_model()
-
+    # datasets.load_dataset("stanfordSentimentTreebank")
     dataset = datasets.load_dataset("sst", split="train[:100]").map(function=dataset_mapping)
 
     print("Start attack")
