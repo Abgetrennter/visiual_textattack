@@ -4,7 +4,7 @@ from fontTools.ttLib.ttFont import TTFont
 import os, numpy as np
 
 parse = argparse.ArgumentParser(description="将ttf字体文件转为图片")
-parse.add_argument('-f', help="输入字体文件", default="simkai.ttf")
+parse.add_argument('-f', help="输入字体文件", default="data/fonts/simkai.ttf")
 parse.add_argument('-o', help="图片输出目录,默认为当前目录下imgs", default="imgs")
 parse.add_argument('-s', '--size', type=int, help="输出图片的像素大小", default=50)
 
@@ -22,16 +22,16 @@ def uni_2_png(txt, font=args.f, img_size=args.size):
     draw.text((0, 0), txt, font=font, fill=0)
     file_name = f'simkai/{txt}.png'
     img.save(file_name)
-    # img.show()
-    # input()
-    return img
+    img.show()
+    input()
+    # return img
 
 
 if __name__ == '__main__':
     f = TTFont(args.f)
     s = []
     ss = "abcdefghijklmnopqrstuvwxyz""ABCDEFGHIJKLMNOPQRSTUVWXYZ""0123456789"
-    q="念忿忍意总忘忽息急感想您怎志悠恶怨慈恩忠态恳惹愚慧愁思恐悉怒惑忌惩慰患愈悬恋惫憋怠憨恕惠忑恙"
+    q="亷"
     for i in q:
         # uni_2_png(i)
         s.append(np.array(uni_2_png(i)).astype(int).reshape(args.size * args.size))

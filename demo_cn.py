@@ -1,10 +1,12 @@
 import OpenAttack
 import datasets
+# from OpenAttack.data_manager import DataManager
+# a=DataManager.load("AttackAssist.SIM")
 
 def dataset_mapping(x):
     return {
-        "x": x["review_body"],
-        "y": x["stars"],
+            "x": x["review_body"],
+            "y": x["stars"],
     }
 
 
@@ -16,16 +18,18 @@ def main():
     clsf = OpenAttack.loadVictim("BERT.AMAZON_ZH")
 
     print("Loading dataset")
-    dataset = datasets.load_dataset("amazon_reviews_multi",'zh',split="train[:20]").map(function=dataset_mapping)
+    dataset = datasets.load_dataset("amazon_reviews_multi", 'zh', split="train[:2]").map(function=dataset_mapping)
 
     print("Start attack")
     attack_eval = OpenAttack.AttackEval(attacker, clsf, metrics=[
-        OpenAttack.metric.Fluency(),
-        OpenAttack.metric.GrammaticalErrors(),
-        OpenAttack.metric.EditDistance(),
-        OpenAttack.metric.ModificationRate()
+            OpenAttack.metric.Fluency(),
+            OpenAttack.metric.GrammaticalErrors(),
+            OpenAttack.metric.EditDistance(),
+            OpenAttack.metric.ModificationRate()
     ])
     attack_eval.eval(dataset, visualize=True, progress_bar=True)
 
+
 if __name__ == "__main__":
     main()
+    pass
