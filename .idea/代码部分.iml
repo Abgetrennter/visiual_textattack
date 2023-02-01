@@ -2,12 +2,12 @@
 <module type="PYTHON_MODULE" version="4">
   <component name="NewModuleRootManager">
     <content url="file://$MODULE_DIR$">
-      <excludeFolder url="file://$MODULE_DIR$/data/AttackAssist.UniversalSentenceEncoder/usencoder/assets" />
-      <excludeFolder url="file://$MODULE_DIR$/OpenAttack-master/docs/source/data" />
-      <excludeFolder url="file://$MODULE_DIR$/OpenAttack-master/OpenAttack/data" />
-      <excludeFolder url="file://$MODULE_DIR$/OpenAttack-master/build" />
-      <excludeFolder url="file://$MODULE_DIR$/OpenAttack-master/dist" />
-      <excludeFolder url="file://$MODULE_DIR$/OpenAttack-master/OpenAttack.egg-info" />
+      <excludeFolder url="file://$MODULE_DIR$/Data/AttackAssist.UniversalSentenceEncoder/usencoder/assets" />
+      <excludeFolder url="file://$MODULE_DIR$/../OpenAttack-master/docs/source/data" />
+      <excludeFolder url="file://$MODULE_DIR$/../OpenAttack-master/OpenAttack/data" />
+      <excludeFolder url="file://$MODULE_DIR$/../OpenAttack-master/build" />
+      <excludeFolder url="file://$MODULE_DIR$/../OpenAttack-master/dist" />
+      <excludeFolder url="file://$MODULE_DIR$/../OpenAttack-master/OpenAttack.egg-info" />
     </content>
     <orderEntry type="jdk" jdkName="Python 3.10 (代码部分3.10)" jdkType="Python SDK" />
     <orderEntry type="sourceFolder" forTests="false" />
