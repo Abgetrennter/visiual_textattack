@@ -2,7 +2,7 @@ import pickle
 import os.path as osp
 from typing import Dict, Tuple, Set, List, Iterable, Callable, Any
 import random
-from pic import str_2_Image, compare
+from pic import Font2pic, compare
 from define import *
 import jieba
 
@@ -43,12 +43,15 @@ def char_flatten(_char: str) -> str:
     raise ValueError("char_flatten: 无拆分字符")
 
 
+_font = Font2pic()
+
+
 def get_sim_visial(_char: str, may_replace: Iterable[str]) -> str:
     """获取一个字符的相似字符"""
-    _char_vec = str_2_Image(_char)
-    _may_replace_vec = [(i, str_2_Image(i)) for i in may_replace]
-    _may_replace = sorted(_may_replace_vec, key=lambda x: compare(_char_vec, x[1]), reverse=True)
-    return _may_replace[0][0]
+    _char_vec = _font.draw(_char)
+    # _may_replace_vec = [(i, _font.draw(i)) for i in may_replace]
+    _may_replace = sorted(may_replace, key=lambda x: compare(_char_vec, _font.draw(x)), reverse=True)
+    return _may_replace[0]
 
 
 def char_sim(_char: str) -> str:
@@ -81,5 +84,5 @@ def sentece_cut_prob(_sentence: str, _f: Callable[[str], str], prob: float) -> s
 
 if __name__ == '__main__':
     for f in (char_sim, char_flatten, char_mars):
-        print(sentece_prob("旨在定义一个稳定、最小化、可移植的语言版本以及相应的标准库，以用于教学和作为将来扩展的基础。"
+        print(sentece_prob(sentence_example
                            , 0.4, f))

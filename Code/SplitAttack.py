@@ -18,7 +18,7 @@ class SplitAttack(ClassificationAttacker):
     def __init__(self, prob: float = 0.4,
                  generations: int = 120,
                  choose_measure="getmany",
-                 attack_measure="char_flatten"):
+                 attack_measure="char_flatten", **kwargs):
         """
         汉字分割攻击的简单实现，希望还没人搞过。
 
@@ -30,6 +30,7 @@ class SplitAttack(ClassificationAttacker):
         self.generations = generations
         self.choose_measure = choose_measure
         self.attack_measure = attack_measure
+        self.__dict__.update(kwargs)
 
     def attack(self, victim: Classifier, sentence: str, goal: ClassifierGoal):
         state = State(sentence, prob=self.prob)  # 记录上一次替换的位置
@@ -53,6 +54,12 @@ class State:
         self.dict = kwargs
 
     def get_pos(self, _measure: str, again=0):
+        """
+
+        :param _measure: 选择的方式
+        :param again: 重新抽取的个数
+        :return:
+        """
         _state = list(self.pos_set)
         if len(_state) == 0:
             raise RuntimeError("No more pos to change")
@@ -94,9 +101,9 @@ class State:
 
 
 if __name__ == '__main__':
-    a = State("旨在定义一个稳定、最小化、可移植的语言版本以及相应的标准库，以用于教学和作为将来扩展的基础。", prob=0.25)
+    a = State(sentence_example, prob=0.25)
     for __measure in ["just_one", "get_many"]:
-        print(measure)
+        print(__measure)
         for _f in [char_flatten, char_mars]:
             print(_f.__name__)
             for _ in range(5):

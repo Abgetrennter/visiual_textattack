@@ -21,7 +21,7 @@ def dataset_mapping(x):
 
 def main():
     print("New Attacker")
-    attacker = SplitAttack(prob=0.2   )  # choose_measure="justone")
+    attacker = SplitAttack(prob=0.1)  # choose_measure="justone")
 
     print("Building model")
     clsf = OpenAttack.loadVictim("BERT.AMAZON_ZH")

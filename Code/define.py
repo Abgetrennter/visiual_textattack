@@ -1,7 +1,11 @@
 from enum import IntEnum, auto
 
-FPATH = ("..","Data", "MyHanziData")
-
+FPATH = ("..", "Data", "MyHanziData")
+FontsPATH = ("..", "Data", "Fonts")
+sentence_example = "旨在定义一个稳定、最小化、可移植的语言版本以及相应的标准库，以用于教学和作为将来扩展的基础。"
+sentence_faltten = "旨在定义一个稳定、最小化、可移植白勺语言版本以及相应的木示准库，以用于教学和作为将来扩展的基础。"
+sentence_changed = "指在定议一个稳定、最小化、苛移植的语言版本以及相应的标准库，笖苚于教学和作伪将来扩展的基础。"
+img_size=50
 
 class HanziStructure(IntEnum):
     """
