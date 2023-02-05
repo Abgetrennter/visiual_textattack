@@ -1,0 +1,7 @@
+{'Total Attacked Instances': 35, 'Successful Instances': 21, 'Attack Success Rate': 0.6, 'Avg. Running Time': 0.006513098308018276, 'Total Query Exceeded': 0.0, 'Avg. Victim Model Queries': 53.22857142857143, 'Avg. Grammatical Errors': 0.14285714285714285, 'Avg. Levenshtein Edit Distance': 9.333333333333334, 'Avg. Word Modif. Rate': 0.6765354743742334, 'Avg. Visiual Rate': 0.8821693821660255}
+prob=0.1
+100%|██████████| 35/35 [05:57<00:00, 10.21s/it]
+{'Total Attacked Instances': 35, 'Successful Instances': 28, 'Attack Success Rate': 0.8, 'Avg. Running Time': 0.006223337990897042, 'Total Query Exceeded': 0.0, 'Avg. Victim Model Queries': 29.6, 'Avg. Grammatical Errors': 0.17857142857142858, 'Avg. Levenshtein Edit Distance': 15.035714285714286, 'Avg. Word Modif. Rate': 0.9493190368069785, 'Avg. Visiual Rate': 0.8357600343462692}
+prob=0.15
+100%|██████████| 35/35 [05:22<00:00,  9.22s/it]
+{'Total Attacked Instances': 35, 'Successful Instances': 29, 'Attack Success Rate': 0.8285714285714286, 'Avg. Running Time': 0.007235574722290039, 'Total Query Exceeded': 0.0, 'Avg. Victim Model Queries': 27.0, 'Avg. Grammatical Errors': 0.1724137931034483, 'Avg. Levenshtein Edit Distance': 21.344827586206897, 'Avg. Word Modif. Rate': 1.025317783931152, 'Avg. Visiual Rate': 0.834303457427771}

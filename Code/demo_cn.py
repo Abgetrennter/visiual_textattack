@@ -21,14 +21,14 @@ def dataset_mapping(x):
 
 def main():
     print("New Attacker")
-    attacker = SplitAttack(prob=0.1)  # choose_measure="justone")
-
+    attacker = SplitAttack(prob=0.2, attack_measure=char_sim)  # choose_measure="justone")
+    # attacker = OpenAttack.attackers.PWWSAttacker(lang="chinese")
     print("Building model")
     clsf = OpenAttack.loadVictim("BERT.AMAZON_ZH")
 
     print("Loading dataset")
-    dataset = datasets.load_dataset("amazon_reviews_multi", 'zh', split="train[:50]").map(function=dataset_mapping)
-
+    dataset = datasets.load_dataset("amazon_reviews_multi", 'zh', split="train[60:100]").map(function=dataset_mapping)
+    # print([i for i in dataset["review_body"]])
     print("Start attack")
     attack_eval = OpenAttack.AttackEval(attacker, clsf, metrics=[
             # OpenAttack.metric.Fluency(),
@@ -37,7 +37,10 @@ def main():
             OpenAttack.metric.ModificationRate(),
             VisiualRate()
     ])
-    attack_eval.eval(dataset, visualize=True, progress_bar=True)
+    for i in (0.15,):
+        attack_eval.attacker.prob = i
+        print(f"prob={i}")
+        print(attack_eval.eval(dataset, visualize=True, progress_bar=True))
 
 
 if __name__ == "__main__":
