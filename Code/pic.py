@@ -19,46 +19,6 @@ def has_glyph(font, glyph):
 default_fonts = os.path.join(*FontsPATH, "wxkai.ttf")
 
 
-# def char_2_Image(txt: str, font=default_fonts, img_size=50) -> Image.Image:
-#     if len(txt) != 1:
-#         raise ValueError("char_2_Image: 输入字符长度不为1")
-#     img = Image.new('1', (img_size, img_size), 255)
-#     draw = ImageDraw.Draw(img)
-#     font = ImageFont.truetype(font, img_size)
-#
-#     # x, y = draw.textsize(txt, font=font)
-#     # draw.text(((img_size - x) // 2, (img_size - y) // 2), txt, font=font, fill=0)
-#     draw.text((0, 0), txt, font=font, fill=0)
-#     # file_name = f'simkai/{txt}.png'
-#     # img.save(file_name)
-#     img.show()
-#     # _input()
-#     return np.array(img).astype(int).reshape(img_size ** 2)
-#
-#
-# def str_2_Image(txt: str, font=default_fonts, img_size=50) -> Image.Image:
-#     """
-#
-#     :param txt:
-#     :param font:
-#     :param img_size: 不同句子的长度不一样长怎么办
-#     :return:
-#     """
-#     img_long_size = img_size * len(txt)
-#     img = Image.new('1', (img_long_size, img_size), 255)
-#     draw = ImageDraw.Draw(img)
-#     font = ImageFont.truetype(font, img_size)
-#
-#     # x, y = draw.textsize(txt, font=font)
-#     # draw.text(((img_size - x) // 2, (img_size - y) // 2), txt, font=font, fill=0)
-#     draw.text((0, 0), txt, font=font, fill=0)
-#     # file_name = f'simkai/{txt}.png'
-#     # img.save(file_name)
-#     img.show()
-#     # _input()
-#     return np.array(img).astype(int).reshape(img_long_size * img_size)
-
-
 def compare(vec1: np.ndarray, vec2: np.ndarray):
     return vec1.dot(vec2) / (np.linalg.norm(vec1) * np.linalg.norm(vec2))
 
@@ -100,7 +60,7 @@ class Font2pic:
         else:
             return self.__draw(_str, (self.img_size * len(_str), self.img_size), show)
 
-    def __draw(self, _str: str, size,show=False) -> np.ndarray:
+    def __draw(self, _str: str, size, show=False) -> np.ndarray:
         """
 
         :param _str:

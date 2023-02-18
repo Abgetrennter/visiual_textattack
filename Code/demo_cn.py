@@ -3,11 +3,11 @@ import datasets
 from define import *
 from SplitAttack import *
 from meric import VisiualRate
-
+from tqdm import tqdm
 OpenAttack.DataManager.data_path = {
         x: "../Data/" + x for x in OpenAttack.DataManager.data_path.keys()
 }
-
+print(OpenAttack.DataManager.AVAILABLE_DATAS)
 
 # from OpenAttack.data_manager import DataManager
 # a=DataManager.load("AttackAssist.SIM")
@@ -18,7 +18,7 @@ def dataset_mapping(x):
             "y": x["stars"],
     }
 
-
+OpenAttack.attackers
 def main():
     print("New Attacker")
     attacker = SplitAttack(prob=0.2, attack_measure=char_sim)  # choose_measure="justone")
@@ -44,5 +44,5 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    # main()
     pass

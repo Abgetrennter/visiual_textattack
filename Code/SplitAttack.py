@@ -21,7 +21,7 @@ class SplitAttack(ClassificationAttacker):
                  choose_measure="get_many",
                  attack_measure=char_flatten, **kwargs):
         """
-        汉字分割攻击的简单实现，希望还没人搞过。
+        汉字分割攻击的简单实现，呜呜呜呜你们怎么都搞完了。
 
         :param prob: The probability of changing a char in a sentence. **Default:** 0.3
         :param generations: Maximum number of sentences generated per attack. **Default:** 120
@@ -47,82 +47,6 @@ class SplitAttack(ClassificationAttacker):
                 # print(sentence, "\n", ans)
                 return ans
 
-
-# class State:
-#     """不重复的随机数"""
-#
-#     def __init__(self, sentence: str, **kwargs):
-#         """
-#
-#         :param sentence: 一个列表，每个元素是一个字符或者词语
-#         :param kwargs:
-#         """
-#         self.sent = sentence
-#         self.range = list((i for i in range(len(sentence)) if sentence[i] not in pun))
-#         self.pos_set = set(self.range)
-#         self.pos_ed = set()
-#         self.now_poses: List[int] | None = None
-#         self.__dict__.update(kwargs)
-#
-#     def get_from_cut(self):
-#         """从分词结果中获取"""
-#         pass
-#
-#     def get_pos_random(self, _measure: str, again=0):
-#         """
-#
-#         :param _measure: 选择的方式
-#         :param again: 重新抽取的个数
-#         :return:
-#         """
-#         _state = list(self.pos_set - self.pos_ed)
-#         if len(_state) == 0:
-#             raise RuntimeError("No more pos to change")
-#         match _measure:
-#             case "just_one":
-#                 self.now_poses = [random.choice(_state)]
-#                 self.pos_ed.add(self.now_poses[0])
-#             case "get_many":
-#                 if again == 0:
-#                     k = int(len(self.range) * self.prob)
-#                 else:
-#                     k = again
-#                 self.now_poses = random.choices(self.range, k=k)
-#                 # self.pos_ed.update(self.now_poses)
-#
-#             # case "just_one2":
-#
-#     # def now_pos(self, pos: List[int]):
-#     #     self.now_poses = pos
-#     #     self.pos_set.difference(pos)
-#
-#     def char_iter(self, _f: Callable[[str], str], measure="", over=False):
-#         """
-#         不该出现在这的函数，但是我懒得写了
-#         :param _f: 处理函数
-#         :param measure: 处理方法
-#         :param over: 是否坚持缺少的字符
-#         :return:
-#         """
-#         ret = self.sent.copy()
-#         self.get_pos_random(measure)
-#         while True:
-#             false_count = 0
-#             for index, c in enumerate(ret[:]):
-#                 if index in self.now_poses:
-#                     try:
-#                         ret[index] = _f(c)
-#                     except ValueError:
-#                         if over:
-#                             false_count += 1
-#             if false_count == 0:
-#                 break
-#             else:
-#                 self.get_pos_random(measure, again=false_count)
-#         return ret
-#
-#     # def __str__(self):
-#     #     return "".join(self.char_iter(char_flatten))
 
 
 if __name__ == '__main__':

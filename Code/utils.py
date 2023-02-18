@@ -79,6 +79,7 @@ def get_sim_visial(_char: str, may_replace: Iterable[str]) -> str:
     else:
         return _char
 
+
 def char_sim(_char: str) -> str:
     _sps = [*hanzi_splits.get(_char, ()), _char]
     # 自己，偏旁一，偏旁二,,,,
@@ -107,22 +108,6 @@ def filter_char(_char: str, _flag: bool, f: Callable[[str], str]) -> str:
     else:
         return _char
 
-
-# def sentece_prob(_sentence: str, prob: float, deal_char: Callable[[str], str]
-#                  , get_char: str = "get_many") -> str:
-#     pos_list = list(range(len(_sentence)))
-#     match get_char:
-#         case "get_many":
-#             pos_list = random.choices(pos_list, k=int(len(_sentence) * prob))
-#         case "just_one":
-#             pos_list = random.choice(pos_list)
-#
-#     return "".join(deal_char(c) if index in pos_list else c for index, c in enumerate(_sentence))
-
-
-# def sentece_cut(_sentence: str) -> List[str]:
-#     word_list = sent_cut.cut(_sentence)
-#     return word_list
 
 def cal_all_sim(c2v: Dict[str, np.ndarray]):
     from tqdm import tqdm
@@ -156,6 +141,15 @@ def draw_sp():
         print(_tt, len(qq))
 
     return omega
+
+
+
+def range_char(start, end):
+    return (chr(c) for c in range(start, end))
+
+
+def insert_char(_char: str) -> str:
+    ...
 
 
 # def ___():

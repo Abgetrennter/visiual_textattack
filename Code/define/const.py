@@ -1,5 +1,3 @@
-from enum import IntEnum, auto
-
 FPATH = ("..", "Data", "MyHanziData")
 FontsPATH = ("..", "Data", "Fonts")
 sentence_example = "收到货后，打开一看，令我大失所望，正面一层薄薄的人造革，背面无纺布，做工粗糙，便宜没好货，说的真没错啊，那么多好评怎么来的，我都纳闷了？"
@@ -12,22 +10,8 @@ pun = set('，。/；’【】、·~+-*/《》？：”{}|——+、！@#￥%…
           'qwertyuiopasdfghjklzxcvbnm'
           'QWERTYUIOPASDFGHJKLZXCVBNM')
 
-
-class HanziStructure(IntEnum):
-    """
-    汉字结构枚举，用于描述汉字的结构
-    """
-    独体 = 0
-    左右 = auto()
-    上下 = auto()
-    左中右 = auto()
-    上中下 = auto()
-    右上包围 = auto()
-    左上包围 = auto()
-    左下包围 = auto()
-    上三包围 = auto()
-    下三包围 = auto()
-    左三包围 = auto()
-    全包围 = auto()
-    镶嵌 = auto()
-    品字 = auto()
+insert_char = '丄丅丆丶丷丿乀亠乄卝亅乁乛爫凵冂冖'
+insert_japan = 'ぁあぃいぅうぇえぉおかがきぎくぐけげこごさざしじすずせぜそぞただちぢっつづてでとどなにぬねのはばぱひびぴふぶぷへべぺ' \
+               'ほぼぽまみむめもゃやゅゆょよらりるれろゎわゐゑをんゔゕゖ゙゚゛゜ゝゞゟ゠ァアィイゥウェエォオカガキギクグケゲコゴサザシジ' \
+               'スズセゼソゾタダチヂッツヅテデトドナニヌネノハバパヒビピフブプヘベペホボポマミムメモャヤュユョヨラリルレロヮワヰヱヲン' \
+               'ヴヵヶヷヸヹヺ・ーヽヾ'
