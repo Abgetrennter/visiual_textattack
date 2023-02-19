@@ -7,28 +7,11 @@ import numpy as np
 
 from pic import *
 from define import *
+from define.load import *
 from cut import *
 
-
-def open_pkl(name):
-    return pickle.load(open(osp.join(*FPATH, name), "rb"))
-
-
-hanzi_structure_dict: Dict[str, HanziStructure] = open_pkl("HanziStructure.pkl")
-hanzi_splits: Dict[str, Tuple[str]] = open_pkl("HanziSplit.pkl")
-splits_sim: Dict[Tuple[str, str], float] = open_pkl("sim.pkl")
-splits_sim2: Dict[Tuple[str, str], float] = open_pkl("sim2.pkl")
-_sp_chars = {}
-for chara, splits in hanzi_splits.items():
-    for sp in splits:
-        if sp in _sp_chars:
-            _sp_chars[sp].append(chara)
-        else:
-            _sp_chars[sp] = [chara]
-sp_chars: Dict[str, Tuple[str]] = {name: tuple(chars) for name, chars in _sp_chars.items()}
-del _sp_chars
-
-all_splits = set(sp_chars.keys())
+import re
+from badapple import my_dict, Part,cal_递归
 
 
 def get_nearest_n(_char: str, n=5) -> Tuple[Tuple[str, float]]:
@@ -73,7 +56,21 @@ def get_sim_visial(_char: str, may_replace: Iterable[str]) -> str:
     # _may_replace_vec = [(i, _font.draw(i)) for i in may_replace]
     _may_replace = [(i, compare(_char_vec, _font.draw(i))) for i in filter(lambda x: len(x) == 1, may_replace)]
     _may_replace = sorted(_may_replace, key=lambda x: x[1], reverse=True)
-    # print(_char,_may_replace[:5])
+    print(_char,_may_replace[:5])
+    if _may_replace:
+        return _may_replace[0][0]
+    else:
+        return _char
+
+
+def get_sim_cal(_char: str, may_replace: Iterable[str]) -> str:
+    """获取一个字符的相似字符"""
+    _char_vec = my_dict[_char]
+    print(may_replace)
+    # _may_replace_vec = [(i, _font.draw(i)) for i in may_replace]
+    _may_replace = [(i, cal_递归(_char_vec, my_dict[i])) for i in filter(lambda x: len(x) == 1, may_replace)]
+    _may_replace = sorted(_may_replace, key=lambda x: x[1], reverse=True)
+    print(_char,_may_replace[:5])
     if _may_replace:
         return _may_replace[0][0]
     else:
@@ -81,7 +78,7 @@ def get_sim_visial(_char: str, may_replace: Iterable[str]) -> str:
 
 
 def char_sim(_char: str) -> str:
-    _sps = [*hanzi_splits.get(_char, ()), _char]
+    _sps = [*hanzi_splits.get(_char, ())]#, _char]
     # 自己，偏旁一，偏旁二,,,,
     chars = []
     for _sp in _sps:
@@ -90,7 +87,7 @@ def char_sim(_char: str) -> str:
     set_chars = set(chars)
     if _char in set_chars:
         set_chars.remove(_char)
-    return get_sim_visial(_char, set_chars)
+    return get_sim_cal(_char, set_chars)
 
 
 def char_mars(_char: str) -> str:
@@ -103,8 +100,18 @@ def char_mars(_char: str) -> str:
 
 def filter_char(_char: str, _flag: bool, f: Callable[[str], str]) -> str:
     if _flag:
-        q = list[_char]
+        # q = list[_char]
         return "".join(f(_c) for _c in _char)
+    else:
+        return _char
+
+
+def uni_filter_char(_char: str, _flag: bool, fs: List[Callable[[str], str]]) -> str:
+    if _flag:
+        # q = list[_char]
+        _f = random.choice(fs)
+        _char = "".join(_f(_c) for _c in _char)
+        return _char
     else:
         return _char
 
@@ -143,14 +150,35 @@ def draw_sp():
     return omega
 
 
-
 def range_char(start, end):
     return (chr(c) for c in range(start, end))
 
 
-def insert_char(_char: str) -> str:
-    ...
+def insert_char(_char: str, strict_flag=False) -> str:
+    if strict_flag:
+        c = insert_bihua
+    else:
+        c = insert_japan
+    return _char + random.choice(c)
 
+
+class make_xlat:
+    def __init__(self, _dict: dict[str, str]):
+        self.adict = _dict
+        self.rx = re.compile('|'.join(re.escape(i) for i in self.adict))
+
+    def one_xlat(self, match):
+        if len(l := self.adict[match.group(0)]) in (0, 1):
+            return l
+        else:
+            # print(l)
+            return random.choice(l)
+
+    def __call__(self, text: str):
+        return self.rx.sub(self.one_xlat, text)
+
+
+hanzi_repalce = make_xlat(hanzi_transfer)
 
 # def ___():
 #     from sklearn.manifold import TSNE
@@ -169,14 +197,18 @@ def insert_char(_char: str) -> str:
 
 
 if __name__ == '__main__':
+    # print(hanzi_repalce("我是中国虎"))
     # print(get_nearest_n("吴",20))
     # draw_sp()
     # splits_sim = cal_all_sim(draw_sp())
     # print(sorted(splits_sim.items(), key=lambda x: splits_sim[x[0]], reverse=True)[:50])
-    select = RandomSelect(sentence_example, prob=0.1)
-    for __measure in ["just_one", "get_many"]:
-        print(__measure)
-        for _f in [char_sim]:  # char_flatten, char_mars,
-            print(_f.__name__)
-            for _ in range(5):
-                print("".join(filter_char(*_, _f) for _ in select.random(__measure)))
+    get_sim_visial("拍","啪帕柏把")
+    # select = RandomSelect(sentence_example, prob=0.1)
+    # for __measure in ["just_one", "get_many"]:
+    #     print(__measure)
+    #     # for _f in [insert_char]:  # char_flatten, char_mars,
+    #     #     print(_f.__name__)
+    #     for _ in range(5):
+    #         print(
+    #                 "".join(uni_filter_char(s, f, [char_sim]) for s, f in
+    #                         select.random(__measure)))

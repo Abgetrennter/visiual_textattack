@@ -19,3 +19,4 @@ class HanziStructure(IntEnum):
     全包围 = auto()
     镶嵌 = auto()
     品字 = auto()
+    组合 = auto()

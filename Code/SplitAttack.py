@@ -19,7 +19,7 @@ class SplitAttack(ClassificationAttacker):
     def __init__(self, prob: float = 0.4,
                  generations: int = 120,
                  choose_measure="get_many",
-                 attack_measure=char_flatten, **kwargs):
+                 attack_measure=(char_flatten,), **kwargs):
         """
         汉字分割攻击的简单实现，呜呜呜呜你们怎么都搞完了。
 
@@ -40,13 +40,15 @@ class SplitAttack(ClassificationAttacker):
         for _ in range(self.generations):
             # ans = sentece_prob(sentence, char_flatten, self.prob)
 
-            ans = "".join(filter_char(*_, f=self.attack_measure) for _ in _select.random(self.choose_measure))
+            # ans = "".join(filter_char(*_, __f=self.attack_measure) for _ in _select.random(self.choose_measure))
+            ans = "".join(uni_filter_char(c, __f, fs=self.attack_measure)
+                          for c, __f in _select.random(self.choose_measure))
+            ans = hanzi_repalce(ans)
             pred = victim.get_pred([ans])[0]
 
             if goal.check(ans, pred):
                 # print(sentence, "\n", ans)
                 return ans
-
 
 
 if __name__ == '__main__':
@@ -59,4 +61,4 @@ if __name__ == '__main__':
         for _f in [char_flatten, char_mars]:
             print(_f.__name__)
             for _ in range(5):
-                print("".join(_f(char) if flag else char for char, flag in select.__dict__[__measure]()))
+                print("".join(_f(char) if flag else char for char, flag in select.random(__measure)))
