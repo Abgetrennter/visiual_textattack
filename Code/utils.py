@@ -11,7 +11,7 @@ from define.load import *
 from cut import *
 
 import re
-from badapple import my_dict, Part,cal_递归
+from badapple import character_dict, Part, cal_递归
 
 
 def get_nearest_n(_char: str, n=5) -> Tuple[Tuple[str, float]]:
@@ -31,10 +31,10 @@ def char_flatten(_char: str) -> str:
     :param _char: 字符
     :return: 列表形式拆分字符
     """
-    structure = hanzi_structure_dict.get(_char, HanziStructure.独体)
+    __structure = hanzi_structure_dict.get(_char, HanziStructure.独体)
     if _char in hanzi_splits:
         _ = hanzi_splits[_char]
-        match structure:
+        match __structure:
             case HanziStructure.左右:
                 if len(_) == 2:
                     return "".join(_)
@@ -56,7 +56,7 @@ def get_sim_visial(_char: str, may_replace: Iterable[str]) -> str:
     # _may_replace_vec = [(i, _font.draw(i)) for i in may_replace]
     _may_replace = [(i, compare(_char_vec, _font.draw(i))) for i in filter(lambda x: len(x) == 1, may_replace)]
     _may_replace = sorted(_may_replace, key=lambda x: x[1], reverse=True)
-    print(_char,_may_replace[:5])
+    print(_char, _may_replace[:5])
     if _may_replace:
         return _may_replace[0][0]
     else:
@@ -65,20 +65,25 @@ def get_sim_visial(_char: str, may_replace: Iterable[str]) -> str:
 
 def get_sim_cal(_char: str, may_replace: Iterable[str]) -> str:
     """获取一个字符的相似字符"""
-    _char_vec = my_dict[_char]
+    _char_vec = character_dict[_char]
     print(may_replace)
     # _may_replace_vec = [(i, _font.draw(i)) for i in may_replace]
-    _may_replace = [(i, cal_递归(_char_vec, my_dict[i])) for i in filter(lambda x: len(x) == 1, may_replace)]
+    _may_replace = [(i, cal_递归(_char_vec, character_dict[i])) for i in filter(lambda x: len(x) == 1, may_replace)]
     _may_replace = sorted(_may_replace, key=lambda x: x[1], reverse=True)
-    print(_char,_may_replace[:5])
+    print(_char, _may_replace[:5])
     if _may_replace:
         return _may_replace[0][0]
     else:
         return _char
 
 
-def char_sim(_char: str) -> str:
-    _sps = [*hanzi_splits.get(_char, ())]#, _char]
+def char_sim(_char: str | Part, flag: int = 0) -> str:
+    if isinstance(_char, str):
+        _char = character_dict[_char]
+    # 火星文版本,添加偏旁
+
+
+    _sps = hanzi_splits.get(_char.c, ())
     # 自己，偏旁一，偏旁二,,,,
     chars = []
     for _sp in _sps:
@@ -90,8 +95,16 @@ def char_sim(_char: str) -> str:
     return get_sim_cal(_char, set_chars)
 
 
-def char_mars(_char: str) -> str:
+def char_mars(_char: str|Part,f:int=0) -> str:
     if _char in sp_chars:
+        adds = sp_chars[_char.c]
+        match f:
+            case 0:
+                return adds[0]
+            case 1:
+                return random.choice(adds)
+            case 2:
+                return max(adds, key=lambda x: abs(x.count - _char.count) / _char.count)
         return get_sim_visial(_char, sp_chars[_char])
     # raise ValueError("char_mars: 无替代字符")
     else:
@@ -191,7 +204,7 @@ hanzi_repalce = make_xlat(hanzi_transfer)
 #
 #     plt.scatter(compress_embedding[:, 0], compress_embedding[:, 1], s=10)
 #     # for x, y, key in zip(compress_embedding[:, 0], compress_embedding[:, 1], keys):
-#     #     plt.text(x, y, key, ha='left', rotation=0, c='black', fontsize=8)
+#     #     plt.text(x, y, key, ha='origin', rotation=0, c='black', fontsize=8)
 #     plt.title("T-SNE")
 #     plt.show()
 
@@ -202,7 +215,7 @@ if __name__ == '__main__':
     # draw_sp()
     # splits_sim = cal_all_sim(draw_sp())
     # print(sorted(splits_sim.items(), key=lambda x: splits_sim[x[0]], reverse=True)[:50])
-    get_sim_visial("拍","啪帕柏把")
+    get_sim_visial("拍", "啪帕柏把")
     # select = RandomSelect(sentence_example, prob=0.1)
     # for __measure in ["just_one", "get_many"]:
     #     print(__measure)

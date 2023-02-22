@@ -20,6 +20,7 @@ for chara, splits in hanzi_splits.items():
         else:
             _sp_chars[sp] = [chara]
 sp_chars: dict[str, tuple[str]] = {name: tuple(chars) for name, chars in _sp_chars.items()}
+
 del _sp_chars
 
 all_splits = set(sp_chars.keys())
