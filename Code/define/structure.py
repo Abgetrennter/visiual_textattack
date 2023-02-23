@@ -1,6 +1,7 @@
 from enum import IntEnum, auto
 
 
+
 class HanziStructure(IntEnum):
     """
     汉字结构枚举，用于描述汉字的结构
@@ -20,3 +21,4 @@ class HanziStructure(IntEnum):
     镶嵌 = auto()
     品字 = auto()
     组合 = auto()
+

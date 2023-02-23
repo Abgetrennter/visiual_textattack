@@ -1,9 +1,7 @@
 from OpenAttack.attackers.classification import ClassificationAttacker, Classifier, ClassifierGoal
 from OpenAttack.tags import TAG_Chinese, Tag
-from typing import Callable, Iterator, List
-from define import *
 from utils import *
-from cut import *
+from Code.define.cut import *
 
 
 # from collections import namedtuple

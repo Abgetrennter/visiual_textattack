@@ -1,2 +1,5 @@
 /Data/AttackAssist.UniversalSentenceEncoder/
-.pkl
+*.pkl
+*.ttf
+*.txt
+/Data/AttackAssist.SIM

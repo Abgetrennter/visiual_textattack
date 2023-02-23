@@ -1,25 +1,26 @@
-from define import *
+# from define import *
 from typing import Callable, List, Set, Tuple, Iterable
+from .const import pun
 import random
 
 sent_cut = None
 
 
-class cut:
-
-    def __init__(self, sentence, remain_pos=None):
-
-        self.sent = sentence
-        self.cut_sent = sent_cut.cut(sentence, text=False)
-        self.pos_set = set(range(len(self.cut_sent)))
-        self.pos_ed = set()
-        if remain_pos is None:
-            self.now_poses = sent_cut.cut(sentence, text=True)
-        else:
-            self.now_poses = [i[0] for i in sent_cut.cut(sentence, text=True) if i[1] in remain_pos]
-
-    def __iter__(self):
-        return self.now_poses
+# class cut:
+#
+#     def __init__(self, sentence, remain_pos=None):
+#
+#         self.sent = sentence
+#         self.cut_sent = sent_cut.cut(sentence, text=False)
+#         self.pos_set = set(range(len(self.cut_sent)))
+#         self.pos_ed = set()
+#         if remain_pos is None:
+#             self.now_poses = sent_cut.cut(sentence, text=True)
+#         else:
+#             self.now_poses = [i[0] for i in sent_cut.cut(sentence, text=True) if i[1] in remain_pos]
+#
+#     def __iter__(self):
+#         return self.now_poses
 
 
 class Select:
@@ -30,14 +31,13 @@ class Select:
         # self.iter = None
 
     def __iter__(self) -> Iterable[tuple[str, bool]]:
-        _iter = ((word, True) if i in self.now_poses else (word, False) for i,word in enumerate(self.sent))
+        _iter = ((word, True) if i in self.now_poses else (word, False) for i, word in enumerate(self.sent))
         return _iter
 
 
 class RandomSelect(Select):
     def __init__(self, sencence: str, prob=0.4):
         """
-
         :param sencence:
         :param prob: 抽取的概率
         """
