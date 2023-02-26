@@ -15,13 +15,11 @@ class VisiualRate(AttackMetric):
         return {TAG_Chinese}
 
     def after_attack(self, _input, adversarial_sample):
+        fpic = Font2pic()
         if adversarial_sample is not None:
-            s_list = [_input["x"], adversarial_sample]
-            if len(s_list[0]) != len(s_list[1]):
-                s_list.sort(key=len)
-                s_list[0] += " " * (len(s_list[1]) - len(s_list[0]))
-                # print("长度不同", _input["x"], adversarial_sample)
-            return compare(self.font.draw(s_list[0]), self.font.draw(s_list[1]))
+            # s_list = [_input["x"], adversarial_sample]
+            s = ["".join(_input["x"]), "".join(adversarial_sample)]
+            s = [fpic.draw(i, size=50,show=True) for i in s]
 
 
 if __name__ == "__main__":

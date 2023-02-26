@@ -1,22 +1,27 @@
+import PIL.Image
 from PIL import ImageFont, Image, ImageDraw
 import argparse
+import cv2
 from fontTools.ttLib.ttFont import TTFont
+from fontTools.ttLib.ttCollection import TTCollection
+import os
 import os.path as osp
 import numpy as np
-from define import sentence_example, FontsPATH, img_size
-from fontTools.unicode import Unicode
+from define import sentence_faltten, sentence_example, FontsPATH, img_size
 from warnings import warn
 
+# from define.transfer_data import hanzi_transfer, hanzi_plus_transfer, english_transfer, NUMBER_CN2AN, time_transfer
 
-def has_glyph(font, glyph):
-    for table in font['cmap'].tables:
-        if ord(glyph) in table.cmap.keys():
-            return True
-    return False
+# def has_glyph(font, glyph):
+#     for table in font['cmap'].tables:
+#         if ord(glyph) in table.cmap.keys():
+#             return True
+#     return False
 
 
 # os.makedirs("../data/fonts/simkai", exist_ok=True)
-default_fonts = osp.join(*FontsPATH, "wxkai.ttf")
+default_fonts = osp.join(*FontsPATH, "wxkai.ttf")  # )  #
+fonts = [i for i in os.listdir(osp.join(*FontsPATH)) if str(i).endswith(".ttf")]
 
 
 def compare(vec1: np.ndarray, vec2: np.ndarray):
@@ -28,16 +33,27 @@ def compare2(vec1: np.ndarray, vec2: np.ndarray):
 
 
 class Font2pic:
+    def __new__(cls, *args, **kwargs):
+        if not hasattr(cls, '_instance'):
+            orig = super(Font2pic, cls)
+            cls._instance = orig.__new__(cls)
+        return cls._instance
+
     def __init__(self, font=default_fonts, _img_size=img_size):
         self.font_name = font
         self.font = ImageFont.truetype(font, _img_size)
         self._font = TTFont(self.font_name)
         self.img_size = _img_size
-        self._dict = {}
+        self._dict: dict[str, Image.Image] = {}
         self.etc = []
-        for _tt in ("KaiXinSongB.ttf", "中华书局宋体02平面_20221110.TTF", "wxkai.ttf","simsunb.ttf"):
+        for _tt in fonts:
             p = osp.join(*FontsPATH, _tt)
             self.etc.append((TTFont(p), ImageFont.truetype(p, _img_size)))
+
+    def __getitem__(self, item):
+        if item not in self._dict:
+            self._dict[item] = self.draw_character(item)
+        return self._dict[item]
 
     def has_char(self, _c, f=None):
         cmap = f if f else self._font
@@ -51,58 +67,66 @@ class Font2pic:
         self.font = ImageFont.truetype(font, self.img_size)
         self._font = TTFont(self.font_name)
 
-    def draw(self, _str: str, show=False, replace=True) -> np.ndarray:
+    def draw(self, _str: str, size=None, show=False) -> None:
         """
 
-        :param replace:
+        :param size:
         :param _str:
         :param show:
         :return:
         """
         if len(_str) == 1:
-
-            if _str not in self._dict:
-                font=None
-                if not self.has_char(_str):
-                    warn("draw: 字体不支持部分字符")
-                    if replace:
-                        warn("已更换为其他字体")
-                    for cmap, f in self.etc:
-                        if self.has_char(_str, cmap):
-                            self._dict[_str] = self.__draw(_str, (self.img_size, self.img_size), show, font)
-                            break
-                    else:
-                        warn("都没有")
-                        self._dict[_str] = self.__draw(_str, (self.img_size, self.img_size), show)
-
-                else:
-                    self._dict[_str] = self.__draw(_str, (self.img_size, self.img_size), show)
-
-            return self._dict[_str]
+            img = self[_str]
         else:
-            if not all(self.has_char(c) for c in _str):
-                warn("draw: 字体不支持部分字符")
-            return self.__draw(_str, (self.img_size * len(_str), self.img_size), show)
+            # if not all(self.has_char(c) for c in _str):
+            #     warn("draw: 字体不支持部分字符")
+            l = len(_str)
+            pic_list = [self[c] for c in _str]
+            w = 20
+            h = l // w + bool(l % w)
+            size = size if size else self.img_size
+            img = Image.new('1', (w * size, h * size), 255)  # 宽*高
 
-    def __draw(self, _str: str, size, show=False, font=None) -> np.ndarray:
+            for i, p in enumerate(pic_list):
+                img.paste(p, ((i % w) * size, (i // w) * size))
+        if show:
+            img.show()
+
+    def draw_character(self, c: str, size=None) -> Image.Image:
         """
 
-        :param _str:
+        :param size:
+        :param c:
         :param show:
         :return:
         """
-        img = Image.new('1', size, 255)
+
+        font = self.font
+        if not self.has_char(c):
+            warn("draw: 字体不支持部分字符,已更换为其他字体")
+            for cmap, _font in self.etc:
+                if self.has_char(c, cmap):
+                    font = _font
+                    break
+            else:
+                warn("都没有")
+        size = size if size else self.img_size
+        img = Image.new('1', (size, size), 255)
         draw = ImageDraw.Draw(img)
         # draw.textbbox(txt, font=font)
-        draw.text((0, 0), _str, font=font if font else self.font, fill=0)
-        if show:
-            img.show()
-        return np.array(img).astype(int).reshape(size[0] * size[1])
+        draw.text((0, 0), c, font=font, fill=0)
+        return img
 
 
 if __name__ == '__main__':
     s = []
-    ss = "abcdefghijklmnopqrstuvwxyz""ABCDEFGHIJKLMNOPQRSTUVWXYZ""0123456789"
+    ss = "abcdefghijklmnopqrstuvwxyz""ABCDEFGHIJKLMNOPQRSTUVWXYZ""0123456789""非常撒旦阿萨"
+    # img = np.zeros((256,256,3), np.uint8)
+    # font = cv2.FONT_HERSHEY_SIMPLEX
+    # cv2.putText(img, 'bcdefghijklmn', (10, 100), font, 0.5, (255, 255, 0), 2)
+    # cv2.imshow("lena", img )
+    # cv2.waitKey(0)
+    # cv2.destroyAllWindows()
     # q = "亷"
     # wxf = os.path.join(*FontsPATH, "simSunb.ttf")
     # for fonts in os.listdir(os.path.join(*FontsPATH)):
@@ -110,12 +134,19 @@ if __name__ == '__main__':
     #     t = TTFont(os.path.join(*FontsPATH, fonts))
     #     for i in ['艳', '壯', '恬', '妟', '龟', '累', '贵', '越', '㝵', '埜','慧' ]:
     #         print(i, has_glyph(t, i))
-    f = Font2pic(_img_size=30)  # (wxf, 50)
-    # func.draw(q, show=True)
+    f = Font2pic(_img_size=50)  # (wxf, 50)
+    print(f is Font2pic())
+    # w = ""
+    # for i in (hanzi_transfer, hanzi_plus_transfer):  # , english_transfer, NUMBER_CN2AN, time_transfer):
+    #     f.draw("".join(f"{k}->{v}" for k, v in i.items()), show=True)
+    # f.draw(sentence_faltten, show=True)
+    # func.draw("丨亻亅丶氵十饣丅丫忄冫干丷衤亠彳千一礻", show=True)
+    # func["常"].show()
+
     # func.draw(ss, show=True)"丨亻亅丶氵十饣丅丫忄冫干丷衤亠彳千一礻"
-    # f.draw("".join("丨亻亅丶氵十饣丅丫忄冫干丷衤亠彳千一礻"), show=True)
-    for i in "亷䜥":#𠤏㔾⺆𠔉龹":
-        f.draw(i, show=True)
+    # func.draw("".join("丨亻亅丶氵十饣丅丫忄冫干丷衤亠彳千一礻"), show=True)
+    # for i in "亷䜥":  # 𠤏㔾⺆𠔉龹":
+    #     func.draw(i, show=True)
 
     # for i in q:
     #     # uni_2_png(i)

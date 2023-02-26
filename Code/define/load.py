@@ -9,6 +9,7 @@ def open_pkl(name):
 
 
 hanzi_structure_dict: dict[str, HanziStructure] = open_pkl("HanziStructure.pkl")
+hanzi_structure_dict = {k: HanziStructure(v) for k, v in hanzi_structure_dict.items()}
 hanzi_splits: dict[str, tuple[str]] = open_pkl("HanziSplit.pkl")
 splits_sim: dict[tuple[str, str], float] = open_pkl("sim.pkl")
 splits_sim2: dict[tuple[str, str], float] = open_pkl("sim2.pkl")

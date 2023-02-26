@@ -1,13 +1,27 @@
 from .const import pianpang
 from .count import char_count
-from .load import hanzi_splits, hanzi_structure_dict
 from .structure import HanziStructure
+from .load import hanzi_splits, hanzi_structure_dict
+
+
+characters = cjk_ideographs = (
+        '\u3007'  # 节选自hanzi包
+        '\u4E00-\u9FFF'  # CJK Unified Ideographs
+        '\u3400-\u4DBF'  # CJK Unified Ideographs Extension A
+        '\uF900-\uFAFF'  # CJK Compatibility Ideographs
+)
 
 
 class HanZiDict:
     """缓存用,避免生成大量重复的"""
+    def __new__(cls, *args, **kwargs):
+        if not hasattr(cls, "_instance"):
+            cls._instance = super().__new__(cls)
+        return cls._instance
+
 
     def __init__(self):
+
         self._dict: dict[str, HanZi] = {}
 
     def __ceil__(self, c):
@@ -114,3 +128,14 @@ class HanZi:
 
     # def __getitem__(self, item):
     #     return self.sub[item]
+
+
+def judege_hanzi(c: str):
+    for i in c:
+        i = ord(i)
+        if i == 0x3007 or (0x4e00 <= i <= 0x9fff) or (0x3400 <= i <= 0x4dbf) or (0xf900 <= i <= 0xfaff):
+            #
+            continue
+        else:
+            return False
+    return True
