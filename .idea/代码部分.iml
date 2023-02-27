@@ -17,6 +17,7 @@
       <excludeFolder url="file://$MODULE_DIR$/Data/TProcess.NLTKSentTokenizer" />
       <excludeFolder url="file://$MODULE_DIR$/Data/TProcess.NLTKWordNet" />
       <excludeFolder url="file://$MODULE_DIR$/Data/Victim.BERT.AMAZON_ZH" />
+      <excludeFolder url="file://$MODULE_DIR$/Data/OutPicture" />
     </content>
     <orderEntry type="jdk" jdkName="Python 3.10 (代码部分3.10)" jdkType="Python SDK" />
     <orderEntry type="sourceFolder" forTests="false" />
