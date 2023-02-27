@@ -1,27 +1,17 @@
-import PIL.Image
-from PIL import ImageFont, Image, ImageDraw
-import argparse
-import cv2
-from fontTools.ttLib.ttFont import TTFont
-from fontTools.ttLib.ttCollection import TTCollection
 import os
 import os.path as osp
-import numpy as np
-from define import sentence_faltten, sentence_example, FontsPATH, img_size
 from warnings import warn
+
+import numpy as np
+from PIL import Image, ImageDraw, ImageFont
+from fontTools.ttLib.ttFont import TTFont
+
+from define import FontsPATH, img_size, sentence_faltten
 
 # from define.transfer_data import hanzi_transfer, hanzi_plus_transfer, english_transfer, NUMBER_CN2AN, time_transfer
 
-# def has_glyph(font, glyph):
-#     for table in font['cmap'].tables:
-#         if ord(glyph) in table.cmap.keys():
-#             return True
-#     return False
 
-
-# os.makedirs("../data/fonts/simkai", exist_ok=True)
 default_fonts = osp.join(*FontsPATH, "wxkai.ttf")  # )  #
-fonts = [i for i in os.listdir(osp.join(*FontsPATH)) if str(i).endswith(".ttf")]
 
 
 def compare(vec1: np.ndarray, vec2: np.ndarray):
@@ -39,6 +29,13 @@ class Font2pic:
             cls._instance = orig.__new__(cls)
         return cls._instance
 
+    @staticmethod
+    def to_vac(p, flag: bool = True):
+        if flag:
+            return np.array(p).astype(int).flatten()
+        else:
+            return np.array(p).astype(int)
+
     def __init__(self, font=default_fonts, _img_size=img_size):
         self.font_name = font
         self.font = ImageFont.truetype(font, _img_size)
@@ -46,7 +43,7 @@ class Font2pic:
         self.img_size = _img_size
         self._dict: dict[str, Image.Image] = {}
         self.etc = []
-        for _tt in fonts:
+        for _tt in [i for i in os.listdir(osp.join(*FontsPATH)) if str(i).endswith(".ttf")]:
             p = osp.join(*FontsPATH, _tt)
             self.etc.append((TTFont(p), ImageFont.truetype(p, _img_size)))
 
@@ -55,8 +52,8 @@ class Font2pic:
             self._dict[item] = self.draw_character(item)
         return self._dict[item]
 
-    def has_char(self, _c, f=None):
-        cmap = f if f else self._font
+    def has_char(self, _c, font=None):
+        cmap = font if font else self._font
         for table in cmap['cmap'].tables:
             if ord(_c) in table.ttFont.getBestCmap():
                 return True
@@ -67,7 +64,7 @@ class Font2pic:
         self.font = ImageFont.truetype(font, self.img_size)
         self._font = TTFont(self.font_name)
 
-    def draw(self, _str: str, size=None, show=False) -> None:
+    def draw(self, _str: str, size=None, show=False) -> Image.Image:
         """
 
         :param size:
@@ -80,10 +77,10 @@ class Font2pic:
         else:
             # if not all(self.has_char(c) for c in _str):
             #     warn("draw: 字体不支持部分字符")
-            l = len(_str)
+            _long = len(_str)
             pic_list = [self[c] for c in _str]
             w = 20
-            h = l // w + bool(l % w)
+            h = _long // w + bool(_long % w)
             size = size if size else self.img_size
             img = Image.new('1', (w * size, h * size), 255)  # 宽*高
 
@@ -91,13 +88,13 @@ class Font2pic:
                 img.paste(p, ((i % w) * size, (i // w) * size))
         if show:
             img.show()
+        return img
 
     def draw_character(self, c: str, size=None) -> Image.Image:
         """
 
         :param size:
         :param c:
-        :param show:
         :return:
         """
 
@@ -118,6 +115,8 @@ class Font2pic:
         return img
 
 
+str_draw = Font2pic()
+
 if __name__ == '__main__':
     s = []
     ss = "abcdefghijklmnopqrstuvwxyz""ABCDEFGHIJKLMNOPQRSTUVWXYZ""0123456789""非常撒旦阿萨"
@@ -135,7 +134,7 @@ if __name__ == '__main__':
     #     for i in ['艳', '壯', '恬', '妟', '龟', '累', '贵', '越', '㝵', '埜','慧' ]:
     #         print(i, has_glyph(t, i))
     f = Font2pic(_img_size=50)  # (wxf, 50)
-    print(f is Font2pic())
+    print(f.draw(sentence_faltten).show())
     # w = ""
     # for i in (hanzi_transfer, hanzi_plus_transfer):  # , english_transfer, NUMBER_CN2AN, time_transfer):
     #     f.draw("".join(f"{k}->{v}" for k, v in i.items()), show=True)

@@ -1,8 +1,7 @@
-from .const import pianpang
-from .count import char_count
-from .structure import HanziStructure
-from .load import hanzi_splits, hanzi_structure_dict
-
+from .Const import pianpang
+from .Count import char_count
+from .HanziStructure import HanziStructure
+from .Load import hanzi_splits, hanzi_structure_dict
 
 characters = cjk_ideographs = (
         '\u3007'  # 节选自hanzi包
@@ -14,11 +13,11 @@ characters = cjk_ideographs = (
 
 class HanZiDict:
     """缓存用,避免生成大量重复的"""
+
     def __new__(cls, *args, **kwargs):
         if not hasattr(cls, "_instance"):
             cls._instance = super().__new__(cls)
         return cls._instance
-
 
     def __init__(self):
 
@@ -49,7 +48,7 @@ class HanZiDict:
         return _s
 
 
-han_dict = HanZiDict()
+Hanzi_dict = HanZiDict()
 
 
 class HanZi:
@@ -74,12 +73,12 @@ class HanZi:
     @staticmethod
     def pianpang(parts):
         if len(parts) == 2:
-            return han_dict.double(parts[0], parts[1])
+            return Hanzi_dict.double(parts[0], parts[1])
         elif parts[-1] in pianpang:
-            return han_dict.double(parts[:-1], parts[-1])
+            return Hanzi_dict.double(parts[:-1], parts[-1])
         else:
             # 默认切分最左边,理论上是找到能成字的最大部分,但是太麻烦了
-            return han_dict.double(parts[0], parts[1:])
+            return Hanzi_dict.double(parts[0], parts[1:])
 
     def char_deal(self, c: str):
         self.struct = hanzi_structure_dict.get(c, HanziStructure.独体)
@@ -89,7 +88,7 @@ class HanZi:
             self.sub = ()
             return
         if len(parts) == 2:
-            self.sub = han_dict.double(parts[0], parts[1])
+            self.sub = Hanzi_dict.double(parts[0], parts[1])
         elif len(parts) > 2:
             # 一般认为最左边和最右边是偏旁,部首表验证一下
             self.sub = self.pianpang(parts)

@@ -1,7 +1,7 @@
 # from define import *
-from typing import Callable, List, Set, Tuple, Iterable
-from .const import pun
 import random
+from typing import Callable, Iterable
+
 from .HanZi import judege_hanzi
 
 sent_cut = None
@@ -109,7 +109,7 @@ class ChineseRandomSelect(RandomSelect):
 
 
 class ImportantSelect(Select):
-    def __init__(self, sencence: str,replace_max=0.2):
+    def __init__(self, sencence: str, replace_max=0.2):
         """
         :param sencence:
         :param prob: 抽取的概率
@@ -137,7 +137,7 @@ class ImportantSelect(Select):
     def simple_select(self, end=0):
         if end == 0:
             end = self.times
-            if self.times < len(self.sent)*self.replace_max:
+            if self.times < len(self.sent) * self.replace_max:
                 self.times += 1
 
         self.now_poses = self.remain[:end]

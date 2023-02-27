@@ -1,7 +1,8 @@
-from .const import FPATH
-from .structure import HanziStructure
-import pickle
 import os.path as osp
+import pickle
+
+from .Const import FPATH
+from .HanziStructure import HanziStructure
 
 
 def open_pkl(name):

@@ -9,6 +9,14 @@
       <excludeFolder url="file://$MODULE_DIR$/../OpenAttack-master/OpenAttack/data" />
       <excludeFolder url="file://$MODULE_DIR$/../OpenAttack-master/docs/source/data" />
       <excludeFolder url="file://$MODULE_DIR$/Data/AttackAssist.UniversalSentenceEncoder" />
+      <excludeFolder url="file://$MODULE_DIR$/Data/AttackAssist.FYH" />
+      <excludeFolder url="file://$MODULE_DIR$/Data/AttackAssist.SIM0" />
+      <excludeFolder url="file://$MODULE_DIR$/Data/Html" />
+      <excludeFolder url="file://$MODULE_DIR$/Data/picture" />
+      <excludeFolder url="file://$MODULE_DIR$/Data/TProcess.NLTKPerceptronPosTagger" />
+      <excludeFolder url="file://$MODULE_DIR$/Data/TProcess.NLTKSentTokenizer" />
+      <excludeFolder url="file://$MODULE_DIR$/Data/TProcess.NLTKWordNet" />
+      <excludeFolder url="file://$MODULE_DIR$/Data/Victim.BERT.AMAZON_ZH" />
     </content>
     <orderEntry type="jdk" jdkName="Python 3.10 (代码部分3.10)" jdkType="Python SDK" />
     <orderEntry type="sourceFolder" forTests="false" />

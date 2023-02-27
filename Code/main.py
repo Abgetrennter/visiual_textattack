@@ -1,9 +1,9 @@
-from SplitAttack import *
-from meric import VisiualRate
-from tqdm import tqdm
-import matplotlib.pyplot as plt
 import OpenAttack
 import datasets
+
+from HaziStructreAttack import HanziStructureAttack
+from meric import VisiualRate
+from CharDeal import char_sim, char_flatten, char_mars, char_insert
 
 OpenAttack.DataManager.data_path = {
         x: "../Data/" + x for x in OpenAttack.DataManager.data_path.keys()
@@ -25,34 +25,37 @@ def dataset_mapping(x):
 
 def main():
     print("New Attacker")
-    attack_measure = ((char_sim, 3), (char_flatten, 2), (char_mars, 4), (char_insert, 1))
-    attacker = SplitAttack(prob=0.2, generations=40,
-                           attack_measure=attack_measure)  # choose_measure="justone")
+    attack_measure = ((char_sim, 3), (char_flatten, 4), (char_mars, 3), (char_insert, 1))
+    attacker = HanziStructureAttack(prob=0.3, generations=50,
+                                    attack_measure=attack_measure)  # choose_measure="justone")
     # attacker1 = OpenAttack.attackers.PWWSAttacker(lang="chinese")
     print("Building model")
     clsf = OpenAttack.loadVictim("BERT.AMAZON_ZH")
 
     print("Loading dataset")
-    dataset = datasets.load_dataset("amazon_reviews_multi", 'zh', split="train[20:40]").map(function=dataset_mapping)
+    dataset = datasets.load_dataset("amazon_reviews_multi", 'zh', split="train[0:5]").map(function=dataset_mapping)
     # print([_ for _ in dataset["review_body"]])
     print("Start attack")
     attack_eval = OpenAttack.AttackEval(attacker, clsf, metrics=[
             # OpenAttack.metric.Fluency(),
-                 # OpenAttack.metric.GrammaticalErrors(),
-            OpenAttack.metric.EditDistance(),
-            OpenAttack.metric.ModificationRate(),
+            # OpenAttack.metric.GrammaticalErrors(),
+            OpenAttack.metric.Levenshtein(),
+            OpenAttack.metric.JaccardChar(),
+            # OpenAttack.metric.ModificationRate(),
             VisiualRate()
     ])
-    attack_eval.eval(dataset, visualize=False, progress_bar=True)
+
+    res = attack_eval.eval(dataset, visualize=False, progress_bar=True)
+    print(res)
     # res = OpenAttack.AttackEval(attacker1, clsf, metrics=[
     #         # OpenAttack.metric.Fluency(),
     #         # OpenAttack.metric.GrammaticalErrors(),
-    #         OpenAttack.metric.EditDistance(),
-    #         OpenAttack.metric.ModificationRate(),
+    #         OpenAttack.metric.Levenshtein(),
+    #         OpenAttack.metric.JaccardChar(),
     #         VisiualRate()
     # ]).eval(dataset, visualize=False, progress_bar=True)
-
-    # _____ = (.1, .2, .3, .4, .45, .5)
+    # print(res)
+    # _____ = (.1, .2, .3, .4, .5)
     #
     # # success_rate1 = [res["Attack Success Rate"] for _ in _____]
     # # edit_distance1 = [res["Avg. Levenshtein Edit Distance"] for _ in _____]
@@ -94,6 +97,7 @@ def main():
     # plt.legend()
     # plt.ylabel("Avg. Running Time")
     # plt.show()
+    #
 
 
 #

@@ -1,10 +1,13 @@
-from define.transfer import *
-
-from define.cut import *
-from utils import *
+import random
+from typing import Callable, List
 
 from OpenAttack.attackers.classification import ClassificationAttacker, Classifier, ClassifierGoal
 from OpenAttack.tags import TAG_Chinese, Tag
+
+from CharDeal import char_flatten
+from define.HanZi import HanZi, Hanzi_dict
+from define.Select import ChineseRandomSelect
+from define.Transfer import english_replace, hanzi_plus_replace, hanzi_repalce, number_cn2an, time_replace
 
 
 # from collections import namedtuple
@@ -12,7 +15,7 @@ from OpenAttack.tags import TAG_Chinese, Tag
 # Measure = namedtuple("measure", ["choose", "attack"])
 
 
-class SplitAttack(ClassificationAttacker):
+class HanziStructureAttack(ClassificationAttacker):
     @property
     def TAGS(self):
         return {TAG_Chinese, Tag("get_pred", "victim")}
@@ -32,9 +35,9 @@ class SplitAttack(ClassificationAttacker):
         self.generations = generations
         self.choose_measure = choose_measure
         self.attack_measure = []
-        for f, w in attack_measure:
+        for func, w in attack_measure:
             # 便宜实现带权重函数选择
-            self.attack_measure.extend([f] * w)
+            self.attack_measure.extend([func] * w)
         self.__dict__.update(kwargs)
 
     def attack(self, victim: Classifier, sentence: str, goal: ClassifierGoal):
@@ -57,8 +60,8 @@ class SplitAttack(ClassificationAttacker):
             # ans = hanzi_repalce(ans)
             # 更具破坏性的攻击
             ans = "".join(uni_filter_char(c, __f, fs=self.attack_measure)
-                          #for c, __f in _select.simple_select())
-            for c, __f in _select.random(self.choose_measure)())
+                          # for c, __f in _select.simple_select())
+                          for c, __f in _select.random(self.choose_measure)())
 
             pred = victim.get_pred([ans])[0]
             # 超级攻击
@@ -67,14 +70,18 @@ class SplitAttack(ClassificationAttacker):
                 return ans
 
 
-if __name__ == '__main__':
-    # thu1 = thulac.thulac()  # 默认模式
-    # text = thu1.cut("我爱北京天安门", text=False)  # 进行一句话分词
-    # print(text)
-    select = RandomSelect(sentence_example, prob=0.4)
-    for __measure in ["just_one", "get_many"]:
-        print(__measure)
-        for _f in [char_flatten, char_mars]:
-            print(_f.__name__)
-            for _ in range(5):
-                print("".join(_f(char) if flag else char for char, flag in select.random(__measure)()))
+def filter_char(_char: str, _flag: bool, func: Callable[[str], str]) -> str:
+    if _flag:
+        # q = list[c]
+        return "".join(func(_c) for _c in _char)
+    else:
+        return _char
+
+
+def uni_filter_char(_str: str, _flag: bool, fs: List[Callable[[HanZi], str]]) -> str:
+    if _flag:
+        # q = list[c]
+        _f = random.choice(fs)
+        return "".join(_f(Hanzi_dict[char]) for char in _str)
+    else:
+        return _str

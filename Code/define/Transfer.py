@@ -1,7 +1,7 @@
 import random
 import re
 
-from .transfer_data import *
+from .Transfer_data import *
 
 
 class make_xlat:
@@ -24,4 +24,4 @@ hanzi_repalce = make_xlat(hanzi_transfer)
 hanzi_plus_replace = make_xlat(hanzi_plus_transfer)
 english_replace = make_xlat(english_transfer)
 number_cn2an = make_xlat(NUMBER_CN2AN)
-time_replace=make_xlat(time_transfer)
+time_replace = make_xlat(time_transfer)
