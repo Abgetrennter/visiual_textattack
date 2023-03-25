@@ -1,3 +1,5 @@
+DataPath = ("..", "Data")
+DATAPATH = ("..", "Data", "Data")
 FPATH = ("..", "Data", "MyHanziData")
 OutPicturePATH = ("..", "Data", "OutPicture")
 FontsPATH = ("..", "Data", "Fonts")

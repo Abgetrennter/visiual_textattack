@@ -1,7 +1,7 @@
 from .Const import pianpang
 from .Count import char_count
 from .HanziStructure import HanziStructure
-from .Load import hanzi_splits, hanzi_structure_dict
+from .Load import Hanzi_Splits, Hanzi_Structure
 
 characters = cjk_ideographs = (
         '\u3007'  # 节选自hanzi包
@@ -81,8 +81,8 @@ class HanZi:
             return Hanzi_dict.double(parts[0], parts[1:])
 
     def char_deal(self, c: str):
-        self.struct = hanzi_structure_dict.get(c, HanziStructure.独体)
-        parts: tuple[str] = hanzi_splits.get(c, ())
+        self.struct = Hanzi_Structure.get(c, HanziStructure.独体)
+        parts: tuple[str] = Hanzi_Splits.get(c, ())
         if self.struct == HanziStructure.独体:
             self.count = char_count.get(c, 5)
             self.sub = ()

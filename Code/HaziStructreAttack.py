@@ -4,9 +4,9 @@ from typing import Callable, List
 from OpenAttack.attackers.classification import ClassificationAttacker, Classifier, ClassifierGoal
 from OpenAttack.tags import TAG_Chinese, Tag
 
-from CharDeal import char_flatten
+from CharDeal import char_flatten, char_insert
 from define.HanZi import HanZi, Hanzi_dict
-from define.Select import ChineseRandomSelect
+from define.Select import RandomSelect, CutSelect
 from define.Transfer import english_replace, hanzi_plus_replace, hanzi_repalce, number_cn2an, time_replace
 
 
@@ -41,33 +41,51 @@ class HanziStructureAttack(ClassificationAttacker):
         self.__dict__.update(kwargs)
 
     def attack(self, victim: Classifier, sentence: str, goal: ClassifierGoal):
-        # state = State(sentence, prob=self.prob)  # 记录上一次替换的位置
-        # _select = RandomSelect(sentence, prob=self.prob)
-        # _select=CutSelect(sentence,prob=self.prob).get_tag_pos()
-        #
         # 初步攻击
+        v = vit(victim, goal)
+
         s = english_replace(hanzi_plus_replace(hanzi_repalce(time_replace(number_cn2an(sentence)))))
+
+        if v.judge(s):
+            return s
+
         # _select = ImportantSelect(s)
-        _select = ChineseRandomSelect(s, prob=self.prob)
-        _select.compare(sentence)
+        match self.choose_measure:
+            case "just_one" | "get_many":
+                _select = RandomSelect(sentence, prob=self.prob, just_chinese=True)
+            case "important_simple_select":
+                _select = CutSelect(sentence, self.prob, just_chinese=True).get_important(victim)
+            case _:
+                _select = Select(sentence, just_chinese=True)
+        _select.compare(s)
         # _select.get_important(victim)
         for _ in range(self.generations):
-            # ans = sentece_prob(sentence, char_flatten, self.prob)
-
-            # ans = "".join(filter_char(*_, __f=self.attack_measure) for _ in _select.random(self.choose_measure))
-            # ans = "".join(uni_filter_char(c, __f, fs=self.attack_measure)
-            #               for c, __f in _select.random(self.choose_measure)())
-            # ans = hanzi_repalce(ans)
             # 更具破坏性的攻击
             ans = "".join(uni_filter_char(c, __f, fs=self.attack_measure)
-                          # for c, __f in _select.simple_select())
-                          for c, __f in _select.random(self.choose_measure)())
+                          for c, __f in _select(self.choose_measure)())
+            # for c, __f in _select.random(self.choose_measure)())
 
-            pred = victim.get_pred([ans])[0]
             # 超级攻击
-            if goal.check(ans, pred):
-                # print(sentence, "\n", ans)
+            if v.judge(ans):
                 return ans
+
+            if _ > self.generations * 0.6:
+                # print("超级攻击失败")
+                ans = "".join(filter_char(i, random.random() < 0.1, char_insert) for i in ans)
+                if v.judge(ans):
+                    return ans
+
+            # print(sentence, "\n", ans)
+
+
+class vit:
+    def __init__(self, vi, goal):
+        self.vi = vi
+        self.goal = goal
+
+    def judge(self, ans):
+        pred = self.vi.get_pred([ans])[0]
+        return self.goal.check(ans, pred)
 
 
 def filter_char(_char: str, _flag: bool, func: Callable[[str], str]) -> str:

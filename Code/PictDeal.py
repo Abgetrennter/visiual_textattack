@@ -6,7 +6,7 @@ import numpy as np
 from PIL import Image, ImageDraw, ImageFont
 from fontTools.ttLib.ttFont import TTFont
 
-from define import FontsPATH, img_size, sentence_faltten
+from define import FontsPATH, img_size
 
 # from define.transfer_data import hanzi_transfer, hanzi_plus_transfer, english_transfer, NUMBER_CN2AN, time_transfer
 
@@ -30,11 +30,11 @@ class Font2pic:
         return cls._instance
 
     @staticmethod
-    def to_vac(p, flag: bool = True):
+    def to_vac(p, flag: bool = True)->np.ndarray:
         if flag:
             return np.array(p).astype(int).flatten()
         else:
-            return np.array(p).astype(int)
+            return np.array(p).astype(np.uint8)
 
     def __init__(self, font=default_fonts, _img_size=img_size):
         self.font_name = font
@@ -51,6 +51,9 @@ class Font2pic:
         if item not in self._dict:
             self._dict[item] = self.draw_character(item)
         return self._dict[item]
+
+    def __iter__(self):
+        return iter(self._dict.items())
 
     def has_char(self, _c, font=None):
         cmap = font if font else self._font
@@ -134,7 +137,8 @@ if __name__ == '__main__':
     #     for i in ['艳', '壯', '恬', '妟', '龟', '累', '贵', '越', '㝵', '埜','慧' ]:
     #         print(i, has_glyph(t, i))
     f = Font2pic(_img_size=50)  # (wxf, 50)
-    print(f.draw(sentence_faltten).show())
+    _=[f[i] for i in ss]
+    print(list(f))
     # w = ""
     # for i in (hanzi_transfer, hanzi_plus_transfer):  # , english_transfer, NUMBER_CN2AN, time_transfer):
     #     f.draw("".join(f"{k}->{v}" for k, v in i.items()), show=True)
