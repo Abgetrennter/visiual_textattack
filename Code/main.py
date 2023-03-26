@@ -60,7 +60,7 @@ def draw(ret, example=None):
 
 def main():
     print("New Attacker")
-    attack_measure = ((char_sim, 2), (char_flatten, 4), (char_mars, 5))
+    attack_measure = ((char_sim, 1), (char_flatten, 2), (char_mars, 3))
     attacker = HanziStructureAttack(prob=0.4, generations=120,
                                     attack_measure=attack_measure, choose_measure="important_simple_select")
     # attacker1 = OpenAttack.attackers.PWWSAttacker(lang="chinese")
