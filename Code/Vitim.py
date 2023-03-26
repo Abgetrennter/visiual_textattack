@@ -28,7 +28,6 @@ class StructBert(Classifier):
         return [np.array(pred['scores'])]
 
 
-
 class Erlangshen(Classifier):
     @property
     def TAGS(self):
@@ -50,7 +49,6 @@ class Erlangshen(Classifier):
         return [np.array(pred['scores'])]
 
 
-
 class Paddle(Classifier):
 
     @property
@@ -58,18 +56,22 @@ class Paddle(Classifier):
         return {TAG_Chinese, TAG_Classification, Tag("get_pred", "victim")}
 
     def __init__(self):
-        self.model = paddlenlp.Taskflow("sentiment_analysis", model="uie-senta-nano")
+        self.model = paddlenlp.Taskflow("sentiment_analysis", model="uie-senta-nano", schema=['情感倾向[正向，负向]'])
 
     def get_pred(self, x):
         """负面0 正面1"""
         x = x[0]
         pred: dict[str, any] = self.model(x)[0]
-        return pred['label']
+        return [pred['情感倾向[正向，负向]'][0]['text']]
 
     def get_prob(self, x):
         x = x[0]
         pred: dict[str, any] = self.model(x)[0]
-        return [np.array((0, pred['score']))]
+        probability = pred['情感倾向[正向，负向]'][0]['probability']
+        if '正' in pred['情感倾向[正向，负向]'][0]['text'] :
+            return [np.array([0, probability])]
+        else:
+            return [np.array([probability, 0])]
 
 
 if __name__ == '__main__':

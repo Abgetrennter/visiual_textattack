@@ -120,7 +120,7 @@ class HanZi:
                 _q.extend(_.sub)
 
     def __repr__(self):
-        return f"{self.c}->HanZi({self.count}, {self.struct.name}, {''.join(i.c for i in self.sub)})"
+        return f"{self.c}->HanZi({self.count}, {self.struct.name}, {''.join(str(i) for i in self.sub)})"
 
     def __str__(self):
         return "".join(self.c)

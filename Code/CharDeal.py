@@ -45,7 +45,7 @@ def 递归计算相似度(origin: HanZi, replacer: HanZi) -> float:
         / (origin.count * (abs(origin.struct.value - replacer.struct.value) + 1))
 
 
-def char_flatten(_char: HanZi) -> str:
+def char_flatten_simple(_char: HanZi) -> str:
     """
     将一个汉字横向拆分成多个汉字
     :param _char: 字符
@@ -65,6 +65,36 @@ def char_flatten(_char: HanZi) -> str:
                 ...
     # raise ValueError("char_flatten: 无拆分字符")
     return c
+
+
+def char_flatten(_char: HanZi) -> str:
+    """
+    将一个汉字横向拆分成多个汉字
+    :param _char: 字符
+    :return: 列表形式拆分字符
+    """
+    splitable = (HanziStructure.左右, HanziStructure.左中右)
+    ret = ""
+    _l = [_char]
+    while _l:
+        c = _l.pop(0)
+        if c.struct in splitable:
+            _l.extend(c.sub)
+        else:
+            ret += c.c
+        # if c in Hanzi_Splits:
+        #     _ = Hanzi_Splits[c]
+        #     match Hanzi_Structure.get(c, HanziStructure.独体):
+        #         case :
+        #             if len(_) == 2:
+        #                 return "".join(_)
+        #         case :
+        #             return "".join(_)
+        #         case HanziStructure.左下包围:
+        #             """效果看起来不是很好"""
+        ...
+    # raise ValueError("char_flatten: 无拆分字符")
+    return ret
 
 
 def char_sim(_char: HanZi) -> str:
@@ -87,21 +117,21 @@ def char_sim(_char: HanZi) -> str:
 
 
 def char_mars(_char: HanZi, func: int = 2) -> str:
-    # 火星文版本,添加偏旁
+    # 火星文版本,添加&删除偏旁
     if _char.c in Splits_Hanzi:
-        adds = Splits_Hanzi[_char.c]
-        match func:
-            case 1:
-                return choice(adds)
-            case 2:
-                _l = [(c, abs((Hanzi_dict[c].count - _char.count) / _char.count)) for c in adds]
-                _l = list(filter(lambda x: x[1] < 1, _l))
-                _l.sort(key=lambda x: x[1])
-                return _l[0][0] if _l else _char.c
-            case 0 | _:
-                return adds[0]
+        adds = [Hanzi_dict[i] for i in Splits_Hanzi[_char.c]]
+    elif _char.sub:
+        adds = [i for i in _char.sub if i.struct != HanziStructure.组合]
     else:
         return _char.c
+
+    match func:
+        case 1:
+            return choice(adds).c
+        case 2:
+            return sorted(adds, key=lambda c: abs((c.count - _char.count) / _char.count))[0].c
+        case 0 | _:
+            return adds[0]
 
 
 def char_insert(_char: str, strict_flag=False) -> str:
@@ -113,23 +143,27 @@ def char_insert(_char: str, strict_flag=False) -> str:
 
 
 if __name__ == '__main__':
-    from Code.HaziStructreAttack import uni_filter_char
+    # from Code.HaziStructreAttack import uni_filter_char
     # print(hanzi_repalce("我是中国虎"))
     # print(get_nearest_n("吴",20))
     # draw_sp()
     # splits_sim = cal_all_sim(draw_sp())
     # print(sorted(splits_sim.items(), key=lambda x: splits_sim[x[0]], reverse=True)[:50])
     # get_sim_visial("拍", "啪帕柏把")
-    from define.Select import *
+    # from define.Select import *
+    print("begin")
+    from define.Const import *
 
-    select = ChineseRandomSelect(sentence_example, prob=0.4)
-    # print([select[i] for i in select.remain])
-    # print([c for c, func in select.random("get_many")() if func])
-    for __measure in ["get_many"]:  # "just_one",
-        print(__measure)
-        # for _f in [insert_char]:  # char_flatten, char_mars,
-        #     print(_f.__name__)
-        for _ in range(5):
-            print(
-                    "".join(uni_filter_char(s, func, [char_mars]) for s, func in
-                            select.random(__measure)()))
+    print("".join(char_mars(Hanzi_dict[c]) for c in sentence_example))
+    print(sentence_example)
+    # select = ChineseRandomSelect(sentence_example, prob=0.4)
+    # # print([select[i] for i in select.remain])
+    # # print([c for c, func in select.random("get_many")() if func])
+    # for __measure in ["get_many"]:  # "just_one",
+    #     print(__measure)
+    #     # for _f in [insert_char]:  # char_flatten, char_mars,
+    #     #     print(_f.__name__)
+    #     for _ in range(5):
+    #         print(
+    #                 "".join(uni_filter_char(s, func, [char_mars]) for s, func in
+    #                         select.random(__measure)()))
