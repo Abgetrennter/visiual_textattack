@@ -12,17 +12,17 @@ sent_cut = None
 #
 #     def __init__(self, sentence, remain_pos=None):
 #
-#         self.sent = sentence
+#         self.ori_sent = sentence
 #         self.cut_sent = sent_cut.cut(sentence, text=False)
 #         self.pos_set = set(range(len(self.cut_sent)))
 #         self.pos_ed = set()
 #         if remain_pos is None:
-#             self.now_poses = sent_cut.cut(sentence, text=True)
+#             self.select = sent_cut.cut(sentence, text=True)
 #         else:
-#             self.now_poses = [i[0] for i in sent_cut.cut(sentence, text=True) if i[1] in remain_pos]
+#             self.select = [i[0] for i in sent_cut.cut(sentence, text=True) if i[1] in remain_pos]
 #
 #     def __iter__(self):
-#         return self.now_poses
+#         return self.select
 
 # 无状态->有状态
 class Select:
@@ -32,25 +32,25 @@ class Select:
 
     def __init__(self, sentence: list[str], just_Chinese=False):
         self.new_sent = {i: c for i, c in enumerate(sentence)}
-        self.sent = list(sentence)
-        self.range = tuple(range(len(self.sent)))
+        self.ori_sent = list(sentence)
+        self.range = tuple(range(len(self.ori_sent)))
 
-        # [i for i, key in enumerate(self.sent) if key not in pun]
-        self.now_poses = list(self.range)
+        # [i for i, key in enumerate(self.ori_sent) if key not in pun]
+        self.select = list(self.range)
         # self.iter = None
         if just_Chinese:
-            self.remain = [i for i, key in enumerate(self.sent) if judege_hanzi(key)]
+            self.remain = [i for i, key in enumerate(self.ori_sent) if judege_hanzi(key)]
         else:
             self.remain = list(self.range)
 
     def __getitem__(self, item: int) -> str:
-        return self.sent[item]
+        return self.ori_sent[item]
 
     def __call__(self, name):
-        return getattr(self, name,self.default)
+        return getattr(self, name, self.default)
 
     def __iter__(self) -> Iterable[tuple[str, bool]]:
-        _iter = ((word, True) if i in self.now_poses else (word, False) for i, word in self.new_sent.items())
+        _iter = ((word, True) if i in self.select else (word, False) for i, word in self.new_sent.items())
         return _iter
 
     def default(self):
@@ -58,11 +58,9 @@ class Select:
 
     def compare(self, r: str):
         # 和修改后的句子比较
-        # len(self.sent) >=len(r)
-        a = SequenceMatcher(None, self.sent, r).get_opcodes()
+        # len(self.ori_sent) >=len(r)
 
-        aa = [i[1:] for i in a if i[0] == 'replace']
-        for i in aa:
+        for i in (i[1:] for i in SequenceMatcher(None, self.ori_sent, r).get_opcodes() if i[0] == 'replace'):
             self.new_sent[i[0]] = r[i[2]:i[3]]
             for index in range(i[0] + 1, i[1]):
                 self.new_sent[index] = ""
@@ -70,8 +68,6 @@ class Select:
 
                 if index in self.remain:
                     self.remain.remove(index)
-
-
 
 
 class RandomSelect(Select):
@@ -88,19 +84,19 @@ class RandomSelect(Select):
 
         self.prob = prob
 
-    def random(self, _measure="get_many") -> Callable:
-        f_dict = {
-                "get_many": self.get_many,
-                "just_one": self.just_one,
-        }
-        return f_dict.get(_measure, self.get_many)
+    # def random(self, _measure="get_many") -> Callable:
+    #     f_dict = {
+    #             "get_many": self.get_many,
+    #             "just_one": self.just_one,
+    #     }
+    #     return f_dict.get(_measure, self.get_many)
 
     def just_one(self):
         """
         一次一个，不重复
         """
-        self.now_poses = [random.choice(self.remain)]
-        self.remain.remove(self.now_poses[0])
+        self.select = [random.choice(self.remain)]
+        self.remain.remove(self.select[0])
 
         return self
 
@@ -115,7 +111,7 @@ class RandomSelect(Select):
             k = int(len(self.remain) * self.prob)
         else:
             k = num
-        self.now_poses = random.choices(self.remain, k=k)
+        self.select = random.choices(self.remain, k=k)
 
         return self
 
@@ -144,10 +140,10 @@ class ImportantSelect(Select):
 
     def get_important(self, prev):
         important = {i: 0.1 for i in self.remain}
-        o_prob = prev.get_prob(["".join(self.sent)])[0].tolist()
+        o_prob = prev.get_prob(["".join(self.ori_sent)])[0].tolist()
         o_k = (max(o_prob), o_prob.index(max(o_prob)))
         for i in self.remain:
-            s = "".join(self.sent[:i] + self.sent[i + 1:])
+            s = "".join(self.ori_sent[:i] + self.ori_sent[i + 1:])
             prob = prev.get_prob([s])[0].tolist()
             r_k = prob[o_k[1]]
             important[i] = o_k[0] - r_k
@@ -157,15 +153,15 @@ class ImportantSelect(Select):
     def important_simple_select(self, end=0):
         if end == 0:
             end = self.times
-            if self.times < len(self.sent) * self.replace_max:
+            if self.times < len(self.ori_sent) * self.replace_max:
                 self.times += 1
 
-        self.now_poses = self.remain[:end]
+        self.select = self.remain[:end]
         return self
 
 
 class CutSelect(ImportantSelect):
-    def __init__(self, sencence: str, replace_max, just_chinese=True):
+    def __init__(self, sencence: str, replace_max=0.8, just_chinese=True):
         ImportantSelect.__init__(self, sencence, replace_max, just_chinese=just_chinese)
         global sent_cut
         if sent_cut is None:
@@ -176,7 +172,7 @@ class CutSelect(ImportantSelect):
 
     def get_important(self, prev):
         important = [0.1 for _ in range(len(self.words))]  # [0.1,]
-        o_prob = prev.get_prob(["".join(self.sent)])[0].tolist()
+        o_prob = prev.get_prob(["".join(self.ori_sent)])[0].tolist()
         o_k = (max(o_prob), o_prob.index(max(o_prob)))
         for i in range(len(self.words)):
             s = "".join(self.words[:i] + self.words[i + 1:])
@@ -185,7 +181,7 @@ class CutSelect(ImportantSelect):
             important[i] = o_k[0] - r_k
         num_words = [[i, []] for i in range(len(self.words))]  # [[1,2],[3,4]]
         p = 0
-        for i, char in enumerate(self.sent):
+        for i, char in enumerate(self.ori_sent):
             if char not in self.words[p]:
                 p += 1
             num_words[p][1].append(i)
@@ -200,12 +196,12 @@ class CutSelect(ImportantSelect):
 
 # class CutSelect(RandomSelect):
 #     # 同形字替换会不会对切分产生影响?
-#     def __init__(self, sent, prob=0.4):
+#     def __init__(self, ori_sent, prob=0.4):
 #         global sent_cut
 #         if sent_cut is None:
 #             from thulac import thulac
 #             sent_cut = thulac()
-#         sentence, self.tag = zip(*sent_cut.cut(sent))
+#         sentence, self.tag = zip(*sent_cut.cut(ori_sent))
 #         RandomSelect.__init__(self, sentence, prob)
 #
 #     def get_tag_pos(self, tag: tuple[str] = ("a", "n", "d", "id")):

@@ -1,10 +1,10 @@
 import numpy as np
-
+import paddlenlp
 from OpenAttack.tags import TAG_Chinese, TAG_Classification, Tag
 from OpenAttack.victim.classifiers import Classifier
 from modelscope.pipelines import pipeline
 from modelscope.utils.constant import Tasks
-import paddlenlp
+
 
 
 class StructBert(Classifier):

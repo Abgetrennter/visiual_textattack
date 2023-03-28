@@ -1,7 +1,7 @@
 from .Const import pianpang
 from .Count import char_count
 from .HanziStructure import HanziStructure
-from .Load import Hanzi_Splits, Hanzi_Structure
+from .Load import Hanzi_Splits, Hanzi_Structure, Splits_Hanzi
 
 characters = cjk_ideographs = (
         '\u3007'  # 节选自hanzi包
@@ -23,7 +23,7 @@ class HanZiDict:
 
         self._dict: dict[str, HanZi] = {}
 
-    def __ceil__(self, c):
+    def __call__(self, c):
         return self[c]
 
     def double(self, c, cc):
@@ -46,9 +46,6 @@ class HanZiDict:
         for i, k in enumerate(self._dict):
             _s += f"{i}:{self._dict[k]}\n"
         return _s
-
-
-Hanzi_dict = HanZiDict()
 
 
 class HanZi:
@@ -111,13 +108,13 @@ class HanZi:
     def __iter__(self):
         return iter(self.sub)
 
-    def my_iter(self):
-        _q = [self]
-        while _q:
-            _ = _q.pop(0)
-            yield _.c
-            if _.sub:
-                _q.extend(_.sub)
+    # def my_iter(self):
+    #     _q = [self]
+    #     while _q:
+    #         _ = _q.pop(0)
+    #         yield _.c
+    #         if _.sub:
+    #             _q.extend(_.sub)
 
     def __repr__(self):
         return f"{self.c}->HanZi({self.count}, {self.struct.name}, {''.join(str(i) for i in self.sub)})"
@@ -138,3 +135,11 @@ def judege_hanzi(c: str):
         else:
             return False
     return True
+
+
+Hanzi_dict = HanZiDict()
+
+Hanzi_Splits_Prue: dict[HanZi, tuple[HanZi]] \
+    = {Hanzi_dict[key]: tuple(Hanzi_dict[i] for i in value) for key, value in Hanzi_Splits.items()}
+Splits_Hanzi_Prue: dict[HanZi, tuple[HanZi]] \
+    = {Hanzi_dict[key]: tuple(Hanzi_dict[i] for i in value) for key, value in Splits_Hanzi.items()}
