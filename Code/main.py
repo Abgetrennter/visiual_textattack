@@ -36,7 +36,7 @@ def attack(ack, vit):
 
 def some_prob(attack_eval, dataset):
     ret = {}
-    for i in (.3, .4, .5):
+    for i in (.4, .5):
         attack_eval.attacker.prob = i
         print(f"prob={i}")
         ret[i] = attack_eval.eval(dataset, visualize=False, progress_bar=True)
@@ -69,17 +69,14 @@ def main():
     # clsf = StructBert()
     # clsf = Paddle()
     # clsf = Erlangshen()
-    # clsfs = (OpenAttack.loadVictim("BERT.AMAZON_ZH"), StructBert(), Paddle())
+    clsfs = (OpenAttack.loadVictim("BERT.AMAZON_ZH"), StructBert(), Paddle())
 
     print("Loading dataset")
-    drange = {"begin": 0, "end": 5}
-    # datasets = (amazon_reviews(**drange), dianping(**drange), paddle(**drange))
-    # dataset= dianping(begin=1,end=5)
-    # dataset = paddle(begin=1, end=5)
+    drange = {"begin": 0, "end": 20}
+    datasets = (amazon_reviews(**drange), dianping(**drange), paddle(**drange))
 
-    # dataset = amazon_reviews(begin=1, end=3)
 
-    for clsf, dataset in ((Paddle(), paddle(**drange)),):  # zip(clsfs,datasets):
+    for clsf, dataset in zip(clsfs, datasets):
         attack_eval = OpenAttack.AttackEval(attacker, clsf, metrics=[
                 # OpenAttack.metric.Fluency(),
                 # OpenAttack.metric.GrammaticalErrors(),
@@ -88,10 +85,11 @@ def main():
                 OpenAttack.metric.ModificationRate(),
                 # VisiualRate()
         ])
-        ret = some_prob(attack_eval, dataset)
-        # ret = attack_eval.eval(dataset, visualize=False, progress_bar=True)
+        #ret = some_prob(attack_eval, dataset)
+        ret = attack_eval.eval(dataset, visualize=False, progress_bar=True)
         print(ret)
-        draw(ret)
+        break
+        # draw(ret)
 
 
 #
