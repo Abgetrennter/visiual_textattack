@@ -21,7 +21,6 @@ def compare(vec1: np.ndarray, vec2: np.ndarray):
 def compare2(vec1: np.ndarray, vec2: np.ndarray):
     return 1 / (1 + np.linalg.norm(vec1 - vec2))
 
-
 class Font2pic:
     def __new__(cls, *args, **kwargs):
         if not hasattr(cls, '_instance'):
@@ -131,9 +130,9 @@ if __name__ == '__main__':
     # cv2.destroyAllWindows()
     # q = "亷"
     # wxf = os.path.join(*FontsPATH, "simSunb.ttf")
-    # for fonts in os.listdir(os.path.join(*FontsPATH)):
-    #     print(fonts)
-    #     t = TTFont(os.path.join(*FontsPATH, fonts))
+    # for Fonts in os.listdir(os.path.join(*FontsPATH)):
+    #     print(Fonts)
+    #     t = TTFont(os.path.join(*FontsPATH, Fonts))
     #     for i in ['艳', '壯', '恬', '妟', '龟', '累', '贵', '越', '㝵', '埜','慧' ]:
     #         print(i, has_glyph(t, i))
     f = Font2pic(_img_size=50)  # (wxf, 50)
