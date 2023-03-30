@@ -23,4 +23,8 @@
     <orderEntry type="jdk" jdkName="Python 3.10 (代码部分3.10)" jdkType="Python SDK" />
     <orderEntry type="sourceFolder" forTests="false" />
   </component>
+  <component name="PackageRequirementsSettings">
+    <option name="versionSpecifier" value="不指定版本" />
+    <option name="modifyBaseFiles" value="true" />
+  </component>
 </module>
