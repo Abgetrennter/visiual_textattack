@@ -12,7 +12,7 @@ from define.Transfer import english_replace, hanzi_plus_replace, hanzi_repalce, 
 from sklearn.gaussian_process import GaussianProcessRegressor
 from bayes_opt import BayesianOptimization, UtilityFunction
 
-utility = UtilityFunction(kind="ucb", kappa=2.5, xi=0.0)
+utility = UtilityFunction(kind="poi", kappa=2, kappa_decay=0.8, xi=0.0)
 
 # from collections import namedtuple
 #
@@ -49,7 +49,7 @@ class HanziStructureAttack(ClassificationAttacker):
         self.dymatic_measure: List[List[measure, float]] = [[*i] for i in self.attack_measure]
         self.optimizer = BayesianOptimization(
                 f=None,
-                pbounds={i[0].__name__: (1, 5) for i in self.dymatic_measure},
+                pbounds={i[0].__name__: (1, 5) for i in self.dymatic_measure[1:]},
                 verbose=len(self.dymatic_measure),
                 random_state=1,
         )
@@ -83,7 +83,7 @@ class HanziStructureAttack(ClassificationAttacker):
 
             # 超级攻击
 
-            if _ > 2 or not self.dymatic:  # 每次攻击前5轮进行优化
+            if _ > 5 or not self.dymatic:  # 每次攻击前5轮进行优化
                 if goal.check(ans, victim.get_pred([ans])[0]):
                     return ans
             else:
@@ -92,9 +92,9 @@ class HanziStructureAttack(ClassificationAttacker):
                 if goal.check(ans, victim.get_pred([ans])[0]):
                     delta = ori_p
                 else:
-                    delta = ori_p-pmax
+                    delta = ori_p - pmax
 
-                self.optimizer.register(params=prob_combo(self.dymatic_measure), target=delta)
+                self.optimizer.register(params=prob_combo(self.dymatic_measure[1:]), target=delta)
                 str_float = self.optimizer.suggest(utility)
                 print(str_float)
                 for name, prob in str_float.items():

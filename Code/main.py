@@ -72,7 +72,7 @@ def main():
     clsfs = (OpenAttack.loadVictim("BERT.AMAZON_ZH"), StructBert(), Paddle())
 
     print("Loading dataset")
-    drange = {"begin": 0, "end": 5}
+    drange = {"begin": 0, "end": 20}
     datasets = (amazon_reviews(**drange), dianping(**drange), paddle(**drange))
 
 
@@ -85,9 +85,10 @@ def main():
                 OpenAttack.metric.ModificationRate(),
                 # VisiualRate()
         ])
-        ret = some_prob(attack_eval, dataset)
-        # ret = attack_eval.eval(dataset, visualize=False, progress_bar=True)
+        #ret = some_prob(attack_eval, dataset)
+        ret = attack_eval.eval(dataset, visualize=False, progress_bar=True)
         print(ret)
+        break
         # draw(ret)
 
 
