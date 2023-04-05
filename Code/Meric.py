@@ -2,7 +2,7 @@ from os import path as osp
 from difflib import SequenceMatcher
 from OpenAttack.metric.algorithms.base import AttackMetric
 from OpenAttack.tags import TAG_Chinese
-
+from paddleocr import PaddleOCR, draw_ocr
 from PIL import Image
 
 from PictDeal import Font2pic, compare2
@@ -34,7 +34,7 @@ _id = 0
 
 
 class VisiualRateOCR(AttackMetric):
-    from paddleocr import PaddleOCR, draw_ocr
+
     def __init__(self, **arg):
         self.font = Font2pic(**arg)
         self.ocr = PaddleOCR(use_angle_cls=True, lang="ch")
@@ -72,7 +72,6 @@ class VisiualRate(AttackMetric):
         if adversarial_sample is not None:
             # s_list = [_input["x"], adversarial_sample]
             s1, s2 = _input["x"], adversarial_sample
-            print(s1,'\n',s2)
             img1 = self.font.draw(s1, size=50)  # .save(f"{name}1.jpg")
             img2 = self.font.draw(s2, size=50)  # .save(f"{name}2.jpg")
             img = Image.new('1', (img1.size[0], img2.size[1] + img1.size[1] + 50), 255)  # 宽*高

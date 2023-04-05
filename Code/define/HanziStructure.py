@@ -8,8 +8,8 @@ class HanziStructure(IntEnum):
     """
     独体 = 0
     左右 = auto()
-    左中右 = auto()
     上下 = auto()
+    左中右 = auto()
     上中下 = auto()
     右上包围 = auto()
     左上包围 = auto()
