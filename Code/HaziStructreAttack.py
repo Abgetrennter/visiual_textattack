@@ -7,8 +7,7 @@ from OpenAttack.tags import TAG_Chinese, Tag
 from CharDeal import char_flatten, char_insert
 from define.HanZi import HanZi, Hanzi_dict
 from define.Select import RandomSelect, CutSelect
-from define.Transfer import english_replace, hanzi_plus_replace, hanzi_repalce, number_cn2an, time_replace, \
-    emoji_tranfer
+from define.Transfer import uni_transfer
 
 from sklearn.gaussian_process import GaussianProcessRegressor
 from bayes_opt import BayesianOptimization, UtilityFunction
@@ -59,12 +58,12 @@ class HanziStructureAttack(ClassificationAttacker):
 
         v = vit(victim, goal)
         # 初步攻击
-        # rs = bidi_s(sentence)
+        rs = bidi_s(sentence)
 
-        # if v(rs):
-        #     return rs
+        if v(rs):
+            return rs
 
-        s = emoji_tranfer(english_replace(hanzi_plus_replace(hanzi_repalce(time_replace(number_cn2an(sentence))))))
+        s = uni_transfer(sentence)
 
         ori_p = max(victim.get_prob([s])[0].tolist())  # 原始准确率
         if v(s):
