@@ -21,9 +21,12 @@ class make_xlat:
 
 
 hanzi_repalce = make_xlat(hanzi_transfer)
-hanzi_plus_replace = make_xlat(hanzi_plus_transfer)
+# hanzi_plus_replace = make_xlat(hanzi_plus_transfer)
 english_replace = make_xlat(english_transfer)
 number_cn2an = make_xlat(NUMBER_CN2AN)
 time_replace = make_xlat(time_transfer)
 emoji_tranfer = make_xlat(emoji_tranfer)
 
+
+def uni_transfer(s: str) -> str:
+    return emoji_tranfer(english_replace(hanzi_repalce(time_replace(number_cn2an(s)))))
