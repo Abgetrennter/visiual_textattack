@@ -5,8 +5,8 @@ from warnings import warn
 import numpy as np
 from PIL import Image, ImageDraw, ImageFont
 from fontTools.ttLib.ttFont import TTFont
-
-from define import FontsPATH, img_size
+from bidi import algorithm
+from define import FontsPATH, img_size, insert_space,insert_zero
 
 # from define.transfer_data import hanzi_transfer, hanzi_plus_transfer, english_transfer, NUMBER_CN2AN, time_transfer
 
@@ -21,6 +21,7 @@ def compare(vec1: np.ndarray, vec2: np.ndarray):
 def compare2(vec1: np.ndarray, vec2: np.ndarray):
     return 1 / (1 + np.linalg.norm(vec1 - vec2))
 
+
 class Font2pic:
     def __new__(cls, *args, **kwargs):
         if not hasattr(cls, '_instance'):
@@ -29,7 +30,7 @@ class Font2pic:
         return cls._instance
 
     @staticmethod
-    def to_vac(p, flag: bool = True)->np.ndarray:
+    def to_vac(p, flag: bool = True) -> np.ndarray:
         if flag:
             return np.array(p).astype(int).flatten()
         else:
@@ -79,15 +80,16 @@ class Font2pic:
         else:
             # if not all(self.has_char(c) for c in _str):
             #     warn("draw: 字体不支持部分字符")
-            _long = len(_str)
-            pic_list = [self[c] for c in _str]
+            _str = algorithm.get_display(_str) # 解决一下超级攻击
+            pics = tuple(self[c] for c in _str if not (c in insert_space or c in insert_zero))
+            _long = len(pics)
             w = 20
             h = _long // w + bool(_long % w)
             size = size if size else self.img_size
             img = Image.new('1', (w * size, h * size), 255)  # 宽*高
 
-            for i, p in enumerate(pic_list):
-                img.paste(p, ((i % w) * size, (i // w) * size))
+            for index, picture in enumerate(pics):
+                img.paste(picture, ((index % w) * size, (index // w) * size))
         if show:
             img.show()
         return img
@@ -121,14 +123,14 @@ str_draw = Font2pic()
 
 if __name__ == '__main__':
     s = []
-    ss = "abcdefghijklmnopqrstuvwxyz""ABCDEFGHIJKLMNOPQRSTUVWXYZ""0123456789""非常撒旦阿萨"
+    # ss = "abcdefghijklmnopqrstuvwxyz""ABCDEFGHIJKLMNOPQRSTUVWXYZ""0123456789""非常撒旦阿萨"
     # img = np.zeros((256,256,3), np.uint8)
     # font = cv2.FONT_HERSHEY_SIMPLEX
     # cv2.putText(img, 'bcdefghijklmn', (10, 100), font, 0.5, (255, 255, 0), 2)
     # cv2.imshow("lena", img )
     # cv2.waitKey(0)
     # cv2.destroyAllWindows()
-    # q = "亷"
+    # keys = "亷"
     # wxf = os.path.join(*FontsPATH, "simSunb.ttf")
     # for Fonts in os.listdir(os.path.join(*FontsPATH)):
     #     print(Fonts)
@@ -136,9 +138,15 @@ if __name__ == '__main__':
     #     for i in ['艳', '壯', '恬', '妟', '龟', '累', '贵', '越', '㝵', '埜','慧' ]:
     #         print(i, has_glyph(t, i))
     f = Font2pic(_img_size=50)  # (wxf, 50)
-    _=[f[i] for i in ss]
-    print(list(f))
-    # w = ""
+    # _=[f[i] for i in ss]
+    # print(list(f))
+    # f['\U0001fab8'].show()
+    f.draw("别人弓虽烈推荐他🏠的水煮⻥，只是我吃起來真的觉🉐很一般，亱是那个香🌶牛🐸比较🈴我的口味，水煮⻥吃起來很香，"
+           "但是跟之前喜欢吃的水煮⻥比起來，好像口味偏清淡一些。还🆗吧，在天堻也没吃过别🏠的水煮⻥。").show()
+    # f.draw("s"+insert_zero+"s").show()
+    # "".join(chr(i) for i in range(0x1f000, 0x1f02c))
+    # f.draw("🤠 牛仔 西部牛仔🤡 小丑 👻 鬼 🩸 血 血滴 血液🫀 心 心脏🫁 肺👑 皇冠 王冠💍 戒指 指环 结婚戒指 钻戒💋 吻 唇印👣 脚印 脚步 足印 足迹🌂 伞 雨伞☂ 太阳伞 阳伞⬅ 左 后⬆ 上 前⬇ 下 后↗ 右上 右前↘ 右下 右后↙ 左下 左后↖ 左上 左前🔄 循环↪ 重做↩ 撤销 撤回⤴ 转上⤵ 转下™ tm© c® rℹ 资讯 咨询🎵 音乐🎶 音符 旋律〰 波浪号➰ 打结 打圈 打旋✔ 通过 勾 对 正🔃 循环➕ 加➖ 减✖ 乘➗ 除🟰 等于").show()
+    # w = ""✴八角星星型星号📳振动模式📴关机🆚vs🈶有🈚无🈸申🈺营🈷月🉑可🉐得💮白花㊙秘㊗祝🈴合🈵满🈲禁🅰A型血🅱B型血🆎AB型血🆑清空清除🅾O型血🈁这里🆖不好🆒酷🆓免费🆕新新款🆗好可以行🆙涨🔟十
     # for i in (hanzi_transfer, hanzi_plus_transfer):  # , english_transfer, NUMBER_CN2AN, time_transfer):
     #     f.draw("".join(f"{k}->{v}" for k, v in i.items()), show=True)
     # f.draw(sentence_faltten, show=True)
@@ -150,17 +158,18 @@ if __name__ == '__main__':
     # for i in "亷䜥":  # 𠤏㔾⺆𠔉龹":
     #     func.draw(i, show=True)
 
-    # for i in q:
+    # for i in keys:
     #     # uni_2_png(i)
     #     s.append(np.array(uni_2_png(i)).astype(int).reshape(args.size * args.size))
     # # s=np.array(s)
     # omega = []
-    # for i in range(len(q)):
-    #     for j in range(i + 1, len(q)):
-    #         print(q[i], q[j], ':')
+    # for i in range(len(keys)):
+    #     for j in range(i + 1, len(keys)):
+    #         print(keys[i], keys[j], ':')
     #         # vec1, vec2 = s[i], s[j]
     #         # print(vec1.dot(vec2) / (np.linalg.norm(vec1) * np.linalg.norm(vec2)))
-    #         # omega.append(((q[i], q[j]), vec1.dot(vec2) / (np.linalg.norm(vec1) * np.linalg.norm(vec2))))
+    #         # omega.append(((keys[i], keys[j]), vec1.dot(vec2) / (np.linalg.norm(vec1) * np.linalg.norm(vec2))))
     # print(sorted(omega, key=lambda x: x[1]))
+
 # # for i in func.getBestCmap():
 #     uni_2_png(chr(i))

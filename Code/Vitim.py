@@ -6,7 +6,6 @@ from modelscope.pipelines import pipeline
 from modelscope.utils.constant import Tasks
 
 
-
 class StructBert(Classifier):
     @property
     def TAGS(self):
@@ -15,17 +14,15 @@ class StructBert(Classifier):
     def __init__(self):
         self.model = pipeline(Tasks.text_classification, 'damo/nlp_structbert_sentiment-classification_chinese-tiny')
 
-    def get_pred(self, x):
+    def get_pred(self, x: list[str]):
         """负面0 正面1"""
-        x = x[0]
-        pred: dict[str, any] = self.model(input=x)
-        s = pred['scores']
-        return pred['labels'][s.index(max(s))][0]
+        pred: list[dict[str, any]] = self.model(input=x)
+        s = [i['scores'] for i in pred]
+        return [i.index(max(i)) for i in s]
 
     def get_prob(self, x):
-        x = x[0]
-        pred: dict[str, any] = self.model(input=x)
-        return [np.array(pred['scores'])]
+        pred: list[dict[str, any]] = self.model(input=x)
+        return [np.array(i['scores']) for i in pred]
 
 
 class Erlangshen(Classifier):
@@ -36,17 +33,16 @@ class Erlangshen(Classifier):
     def __init__(self):
         self.model = pipeline(Tasks.text_classification, 'Fengshenbang/Erlangshen-RoBERTa-110M-Sentiment')
 
-    def get_pred(self, x):
+    def get_pred(self, x: list[str]):
         """负面0 正面1"""
         x = x[0]
-        pred: dict[str, any] = self.model(input=x)
-        s = pred['scores']
-        return pred['labels'][s.index(max(s))][0]
+        pred: list[dict[str, any]] = self.model(input=x)
+        s = [i['scores'] for i in pred]
+        return [i.index(max(i)) for i in s]
 
     def get_prob(self, x):
-        x = x[0]
-        pred: dict[str, any] = self.model(input=x)
-        return [np.array(pred['scores'])]
+        pred: list[dict[str, any]] = self.model(input=x)
+        return [np.array(i['scores']) for i in pred]
 
 
 class Paddle(Classifier):
@@ -58,23 +54,20 @@ class Paddle(Classifier):
     def __init__(self):
         self.model = paddlenlp.Taskflow("sentiment_analysis", model="uie-senta-nano", schema=['情感倾向[正向，负向]'])
 
-    def get_pred(self, x):
+    def get_pred(self, x: list[str]):
         """负面0 正面1"""
-        x = x[0]
-        pred: dict[str, any] = self.model(x)[0]
-        return [pred['情感倾向[正向，负向]'][0]['text']]
+        pred: list[dict[str, any]] = self.model(x)
+        label = [1 if i['情感倾向[正向，负向]'][0]['text'] == '正向' else 0 for i in pred]
+        return label
 
-    def get_prob(self, x):
-        x = x[0]
-        pred: dict[str, any] = self.model(x)[0]
-        probability = pred['情感倾向[正向，负向]'][0]['probability']
-        if '正' in pred['情感倾向[正向，负向]'][0]['text'] :
-            return [np.array([0, probability])]
-        else:
-            return [np.array([probability, 0])]
+    def get_prob(self, x: list[str]):
+        pred: list[dict[str, any]] = self.model(x)
+        probability = [i['情感倾向[正向，负向]'][0]['probability'] for i in pred]
+        label = [1 if i['情感倾向[正向，负向]'][0]['text'] == '正向' else '负向' for i in pred]
+        return [np.array([0, p]) if i == '正向' else np.array([p, 0]) for i, p in zip(label, probability)]
 
 
 if __name__ == '__main__':
-    q = StructBert()
-    print(q.get_pred(['我是中国人']))
-    print(q.get_pred_prob(['我是中国人']))
+    q = Paddle()
+    print(q.get_pred(['我是中国人', '你才是中国人']))
+    print(q.get_prob(['我是中国人','你才是中国人']))

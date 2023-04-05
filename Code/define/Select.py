@@ -31,13 +31,14 @@ class Select:
     """
 
     def __init__(self, sentence: list[str], just_Chinese=False):
-        self.new_sent = {i: c for i, c in enumerate(sentence)}
-        self.ori_sent = list(sentence)
-        self.range = tuple(range(len(self.ori_sent)))
-
+        # 所有序号按照最初的句子来
+        self.ori_sent: tuple[str] = tuple(sentence)  # 原始句子,通过序号可以访问到原始的字词
+        self.range: tuple[int] = tuple(range(len(self.ori_sent)))  # 0~len(self.ori_sent)
+        self.new_sent = {i: self.ori_sent[i] for i in self.range}  # 通过原来的序号能够访问到修改后的字词
+        self.select = list(self.range)  # 选中的序号,选择函数应该修改他
         # [i for i, key in enumerate(self.ori_sent) if key not in pun]
-        self.select = list(self.range)
-        # self.iter = None
+
+        # 可以被选择的范围
         if just_Chinese:
             self.remain = [i for i, key in enumerate(self.ori_sent) if judege_hanzi(key)]
         else:
@@ -50,7 +51,8 @@ class Select:
         return getattr(self, name, self.default)
 
     def __iter__(self) -> Iterable[tuple[str, bool]]:
-        _iter = ((word, True) if i in self.select else (word, False) for i, word in self.new_sent.items())
+        _iter = ((word, True) if i in self.select else (word, False) for i, word in
+                 self.new_sent.items())  # 被修改过的一定是False
         return _iter
 
     def default(self):
@@ -61,13 +63,16 @@ class Select:
         # len(self.ori_sent) >=len(r)
 
         for i in (i[1:] for i in SequenceMatcher(None, self.ori_sent, r).get_opcodes() if i[0] == 'replace'):
+            # i[0]是原句子的起始位置，i[1]是原句子的结束位置，i[2]是修改后的句子的起始位置，i[3]是修改后的句子的结束位置
             self.new_sent[i[0]] = r[i[2]:i[3]]
             for index in range(i[0] + 1, i[1]):
+                # 原句子中的剩余部分归零
                 self.new_sent[index] = ""
             for index in range(i[0], i[1]):
-
-                if index in self.remain:
+                try:
                     self.remain.remove(index)
+                except ValueError:
+                    pass
 
 
 class RandomSelect(Select):
@@ -134,7 +139,7 @@ class ImportantSelect(Select):
         """
         # from OpenAttack.attackers.classification import ClassifierGoal
         Select.__init__(self, list(sencence), just_Chinese=just_chinese)
-        self.remain = [i for i in self.range if judege_hanzi(self[i])]
+        # self.remain = [i for i in self.range if judege_hanzi(self[i])]
         self.times = 1
         self.replace_max = replace_max
 
@@ -187,7 +192,7 @@ class CutSelect(ImportantSelect):
             num_words[p][1].append(i)
 
         num_words.sort(key=lambda x: important[x[0]], reverse=True)
-        self.remain = [ii for i in num_words for ii in i[1] if judege_hanzi(self[ii])]
+        self.remain = [ii for i in num_words for ii in i[1] if ii in self.remain]
 
         return self
         # self.remain.sort(key=lambda x: important[x], reverse=True)

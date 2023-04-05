@@ -7,7 +7,7 @@ from OpenAttack.tags import TAG_Chinese, Tag
 from CharDeal import char_flatten, char_insert
 from define.HanZi import HanZi, Hanzi_dict
 from define.Select import RandomSelect, CutSelect
-from define.Transfer import english_replace, hanzi_plus_replace, hanzi_repalce, number_cn2an, time_replace
+from define.Transfer import uni_transfer
 
 from sklearn.gaussian_process import GaussianProcessRegressor
 from bayes_opt import BayesianOptimization, UtilityFunction
@@ -56,9 +56,14 @@ class HanziStructureAttack(ClassificationAttacker):
 
     def attack(self, victim: Classifier, sentence: str, goal: ClassifierGoal):
 
-        # v = vit(victim, goal)
+        v = vit(victim, goal)
         # 初步攻击
-        s = english_replace(hanzi_plus_replace(hanzi_repalce(time_replace(number_cn2an(sentence)))))
+        rs = bidi_s(sentence)
+
+        if v(rs):
+            return rs
+
+        s = uni_transfer(sentence)
 
         ori_p = max(victim.get_prob([s])[0].tolist())  # 原始准确率
         if goal.check(s, victim.get_pred([s])[0]):
@@ -69,11 +74,12 @@ class HanziStructureAttack(ClassificationAttacker):
             case "just_one" | "get_many":
                 _select = RandomSelect(sentence, prob=self.prob, just_chinese=True)
             case "important_simple_select":
-                _select = CutSelect(sentence, self.prob, just_chinese=True).get_important(victim)
+                _select = CutSelect(sentence, self.prob, just_chinese=True)
+                _select.compare(s)
+                _select.get_important(victim)
             case _:
                 _select = Select(sentence, just_chinese=True)
 
-        _select.compare(s)
         # _select.get_important(victim)
         for _ in range(self.generations):
             # 更具破坏性的攻击
@@ -84,12 +90,12 @@ class HanziStructureAttack(ClassificationAttacker):
             # 超级攻击
 
             if _ > 5 or not self.dymatic:  # 每次攻击前5轮进行优化
-                if goal.check(ans, victim.get_pred([ans])[0]):
+                if v(ans):
                     return ans
             else:
                 pmax = max(victim.get_prob([ans])[0].tolist())
 
-                if goal.check(ans, victim.get_pred([ans])[0]):
+                if v(ans):
                     delta = ori_p
                 else:
                     delta = ori_p - pmax
@@ -109,7 +115,7 @@ class HanziStructureAttack(ClassificationAttacker):
             if _ > self.generations * 0.6:
                 # print("超级攻击失败")
                 ans = "".join(filter_char(i, random.random() < 0.1, char_insert) for i in ans)
-                if goal.check(ans, victim.get_pred([ans])[0]):
+                if v(ans):
                     return ans
 
             # print(sentence, "\n", ans)
@@ -125,13 +131,13 @@ class vit:
         self.goal = goal
         self.last_prob = 0.5
 
-    def judge(self, ans):
+    def __call__(self, ans):
         return self.goal.check(ans, self.vi.get_pred([ans])[0])
 
 
 def filter_char(_char: str, _flag: bool, func: Callable[[str], str]) -> str:
     if _flag:
-        # q = list[c]
+        # keys = list[c]
         return "".join(func(_c) for _c in _char)
     else:
         return _char
@@ -139,9 +145,12 @@ def filter_char(_char: str, _flag: bool, func: Callable[[str], str]) -> str:
 
 def uni_filter_char(_str: str, _flag: bool, fs: List[tuple | list[measure, float]]) -> str:
     if _flag:
-        # q = list[c]
+        # keys = list[c]
         _f = weight_choice(fs)
-        return "".join(_f(Hanzi_dict[char]) for char in _str)
+        try:
+            return "".join(_f(Hanzi_dict[char]) for char in _str)
+        except:
+            pass
     else:
         return _str
 
@@ -154,3 +163,13 @@ def weight_choice(item_weight: List[tuple[any, float]]) -> any:
         if _rand < 0:
             return i
     return item_weight[-1][0]
+
+
+def bidi_s(s):
+    if len(s) % 2 != 0:
+        s += " "
+    l = len(s)
+    ss = ""
+    for i in range(l // 2):
+        ss += s[i] + '\u202e' + s[l - i - 1] + '\u202a'
+    return ss
