@@ -2,7 +2,7 @@ from random import choice
 from typing import Iterable
 
 from PictDeal import compare, str_draw
-from define.Const import insert_bihua, insert_japan,insert_space,insert_zero
+from define.Const import insert_bihua, insert_japan,insert_zero,insert_space
 from define.HanZi import HanZi, Hanzi_dict, Hanzi_Splits_Prue, Splits_Hanzi_Prue
 from define.HanziStructure import HanziStructure
 from define.Load import Hanzi_Structure
@@ -124,8 +124,8 @@ def _char_mars(_char: HanZi, func: int = 2) -> HanZi:
             return choice(adds)
         case 2:
 
-            __l = [(c, abs((c.count - _char.count) / _char.count)) for c in adds]
-            __l = sorted(filter(lambda x: x[1] < 0.5, __l), key=lambda x: x[1])
+            __l = ((c, (c.count - _char.count)/_char.count) for c in adds)
+            __l = sorted(filter(lambda x: x[1] < 1 if x[1]>0 else x[1]> -0.5, __l), key=lambda x: abs(x[1]))#, reverse=True)
             if __l:
                 return __l[0][0]
             else:
@@ -160,10 +160,9 @@ if __name__ == '__main__':
     print("begin")
     from define.Const import *
 
-    sentence_example = "本来非常信任的，谁知道第一次在这里买书竟然就碰上了盗版，书页质量不好不说，中间还缺了几十页，" \
-                       "全是空白，这卖家是想让我自由发挥？？？是不是真题放在其次，可这资料本身已经让人大跌眼镜，真是不敢恭维!"
+    sentence_example += "做儒徽"
 
-    s = "".join(char_sim(Hanzi_dict[c]) for c in sentence_example)
+    s = "".join(char_mars(Hanzi_dict[c]) for c in sentence_example)
     print(s)
     print(sentence_example)
     # c = CutSelect(sentence_example, replace_max=0.8)
