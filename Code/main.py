@@ -5,10 +5,12 @@ from CharDeal import char_flatten, char_mars, char_sim
 from HaziStructreAttack import HanziStructureAttack
 from Data import amazon_reviews, dianping, paddle
 from Meric import VisiualRate
+from multiprocessing import Pool
 
 OpenAttack.DataManager.data_path = {
         x: "../Data/" + x for x in OpenAttack.DataManager.data_path.keys()
 }
+OpenAttack.DataManager.source = "http://data.thunlp.org/"
 
 
 # print(OpenAttack.DataManager.AVAILABLE_DATAS)
@@ -69,12 +71,11 @@ def main():
     # clsf = StructBert()
     # clsf = Paddle()
     # clsf = Erlangshen()
-    clsfs = (OpenAttack.loadVictim("BERT.AMAZON_ZH"), StructBert(), Paddle())
+    clsfs = (OpenAttack.loadVictim("BERT.AMAZON_ZH"), )# Paddle()StructBert(),
 
     print("Loading dataset")
-    drange = {"begin": 0, "end": 20}
-    datasets = (amazon_reviews(**drange), dianping(**drange), paddle(**drange))
-
+    drange = {"begin": 1200, "end": 1205}
+    datasets = ( dianping(**drange), )#amazon_reviews(**drange),paddle(**drange))
 
     for clsf, dataset in zip(clsfs, datasets):
         attack_eval = OpenAttack.AttackEval(attacker, clsf, metrics=[
@@ -83,13 +84,15 @@ def main():
                 OpenAttack.metric.Levenshtein(),
                 OpenAttack.metric.JaccardChar(),
                 OpenAttack.metric.ModificationRate(),
-                # VisiualRate()
+                VisiualRate()
         ])
-        #ret = some_prob(attack_eval, dataset)
+        # ret = some_prob(attack_eval, dataset)
         ret = attack_eval.eval(dataset, visualize=False, progress_bar=True)
         print(ret)
-        break
-        # draw(ret)
+        # break
+
+
+# draw(ret)
 
 
 #
