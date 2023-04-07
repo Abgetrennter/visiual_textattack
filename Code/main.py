@@ -114,7 +114,7 @@ def simple():
     attack_eval = OpenAttack.AttackEval(attacker, Paddle(), metrics=[
         # OpenAttack.metric.Fluency(),
         # OpenAttack.metric.GrammaticalErrors(),
-        # OpenAttack.metric.Levenshtein(),
+        OpenAttack.metric.Levenshtein(),
         OpenAttack.metric.JaccardChar(),
         OpenAttack.metric.ModificationRate(),
         # VisiualRate()
@@ -126,6 +126,6 @@ def simple():
 #
 #
 if __name__ == "__main__":
-    sys.argv.append("AMAZON_ZH")
-    main()
-    # simple()
+    # sys.argv.append("AMAZON_ZH")
+    # main()
+    simple()

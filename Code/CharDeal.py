@@ -1,11 +1,9 @@
 from random import choice
-from typing import Iterable
 
+from Code.define import cal_stru_sim
 from PictDeal import compare, str_draw
-from define.Const import insert_bihua, insert_japan,insert_zero,insert_space
 from define.HanZi import HanZi, Hanzi_dict, Hanzi_Splits_Prue, Splits_Hanzi_Prue
 from define.HanziStructure import HanziStructure
-from define.Load import Hanzi_Structure
 
 
 # def get_sim_visial(_char: str, may_replace: Iterable[str]) -> str:
@@ -42,7 +40,7 @@ def 递归计算相似度(origin: HanZi, replacer: HanZi) -> float:
     return (递归计算相似度(origin.sub[0], replacer.sub[0]) * origin.sub[0].count
             +
             递归计算相似度(origin.sub[1], replacer.sub[1]) * origin.sub[1].count) \
-        / (origin.count * (abs(origin.struct.value - replacer.struct.value) + 1))
+        / (origin.count * cal_stru_sim(origin, replacer))
 
 
 # def char_flatten_simple(_char: HanZi) -> str:
@@ -155,7 +153,6 @@ if __name__ == '__main__':
     # splits_sim = cal_all_sim(draw_sp())
     # print(sorted(splits_sim.items(), key=lambda x: splits_sim[x[0]], reverse=True)[:50])
     # get_sim_visial("拍", "啪帕柏把")
-    from define.Select import *
 
     print("begin")
     from define.Const import *

@@ -22,3 +22,6 @@ class HanziStructure(IntEnum):
     品字 = auto()
     组合 = auto()
 
+
+def cal_stru_sim(origin, replacer):
+    return abs(origin.struct.value - replacer.struct.value) + 1

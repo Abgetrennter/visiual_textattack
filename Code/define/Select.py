@@ -165,6 +165,19 @@ class ImportantSelect(Select):
         return self
 
 
+    def important_random_select(self, end=0):
+        if end == 0:
+            end = int(self.times)
+            if self.times < len(self.ori_sent) * self.replace_max:
+                self.times += 0.75
+        end = max(2, end)
+        ra = self.remain[:min(self.times * 1.4, len(self.ori_sent))]
+        random.shuffle(ra)
+
+        self.select = ra[:end]
+        return self
+
+
 class CutSelect(ImportantSelect):
     def __init__(self, sencence: str, replace_max=0.8, just_chinese=True):
         ImportantSelect.__init__(self, sencence, replace_max, just_chinese=just_chinese)

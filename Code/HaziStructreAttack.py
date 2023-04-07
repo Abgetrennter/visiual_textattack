@@ -132,11 +132,12 @@ class vit:
         self.last_prob = 0.5
 
     def __call__(self, ans):
+        ans=uni_transfer(ans)
         if self.goal.check(ans, self.vi.get_pred([ans])[0]):
             return True
-        # ans=bidi_s(ans) #无影响攻击
-        # if self.goal.check(ans, self.vi.get_pred([ans])[0]):
-        #     return True
+        ans=bidi_s(ans) #无影响攻击
+        if self.goal.check(ans, self.vi.get_pred([ans])[0]):
+            return True
         return False
 
 

@@ -49,6 +49,9 @@ class HanZiDict:
 
 
 class HanZi:
+    def __getitem__(self, item):
+        return self.sub[item]
+
     def __init__(self, c: str | tuple[str] = None):
         self.c = c
         self.count = 0
