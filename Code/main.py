@@ -64,12 +64,14 @@ def draw(ret, example=None):
 
 def main():
     print("New Attacker")
-    attack_measure = ((char_sim, 1.5),)  #(char_mars, 2) ,(char_flatten, 2), )
-    attacker = HanziStructureAttack(prob=0.4, generations=120,
-                                    attack_measure=attack_measure, choose_measure="get_many",
-                                    # "important_simple_select",
-                                    dymatic=False)
-    # attacker = OpenAttack.attackers.PWWSAttacker(lang="chinese")
+    attack_measure = ( (char_flatten, 2),)#(char_sim, 1.5),(char_mars, 2), )
+    # attacker = HanziStructureAttack(prob=0.4, generations=120,
+    #                                 attack_measure=attack_measure, choose_measure="important_simple_select",
+    #                                 # "important_simple_select",
+    #                                 dymatic=False,
+    #                                 single=True
+    #                                 )
+    attacker = OpenAttack.attackers.PWWSAttacker(lang="chinese")
     print("Building model")
     # clsf = StructBert()
     # clsf = Paddle()
@@ -77,7 +79,7 @@ def main():
     # clsfs = ((), ())
     # clsfs = (StructBert(), Paddle())
     print("Loading dataset")
-    drange = {"begin": 0, "end": 200}
+    drange = {"begin": 0, "end": 5}
     # datasets = (dianping(**drange), paddle(**drange))amazon_reviews(**drange),
     # datasets = ( (**drange), (**drange))
     alll = {"AMAZON_ZH": (lambda: OpenAttack.loadVictim("BERT.AMAZON_ZH"), amazon_reviews),
@@ -96,13 +98,13 @@ def main():
             # OpenAttack.metric.Levenshtein(),
             OpenAttack.metric.JaccardChar(),
             OpenAttack.metric.ModificationRate(),
-            # VisiualRate()
+            VisiualRate()
         ])
         # ret = some_prob(attack_eval, dataset)
         ret = attack_eval.eval(dataset(**drange), visualize=False, progress_bar=True)
         print(ret)
 
-        with open(f"result{name}{int(time.time())}.txt", "w", encoding='utf8') as f:
+        with open(f"{name}{int(time.time())}.txt", "w", encoding='utf8') as f:
             f.write(str(ret) + '\n')
 
 
@@ -114,18 +116,18 @@ def simple():
     attack_eval = OpenAttack.AttackEval(attacker, Paddle(), metrics=[
         # OpenAttack.metric.Fluency(),
         # OpenAttack.metric.GrammaticalErrors(),
-        OpenAttack.metric.Levenshtein(),
+        # OpenAttack.metric.Levenshtein(),
         OpenAttack.metric.JaccardChar(),
         OpenAttack.metric.ModificationRate(),
         # VisiualRate()
     ])
-    ret = attack_eval.eval(paddle(end=2), visualize=False, progress_bar=True)
+    ret = attack_eval.eval(amazon_reviews(end=20), visualize=False, progress_bar=True)
     print(ret)
 
 
 #
 #
 if __name__ == "__main__":
-    # sys.argv.append("AMAZON_ZH")
-    # main()
-    simple()
+    # sys.argv.append("StructBert")
+    main()
+    # simple()

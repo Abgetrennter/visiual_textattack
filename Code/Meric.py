@@ -68,21 +68,22 @@ class VisiualRate(AttackMetric):
 
     def after_attack(self, _input, adversarial_sample):
         # name = _input['review_id']
-
-        if adversarial_sample is not None:
-            # s_list = [_input["x"], adversarial_sample]
-            s1, s2 = _input["x"], adversarial_sample
-            img1 = self.font.draw(s1, size=50)  # .save(f"{name}1.jpg")
-            img2 = self.font.draw(s2, size=50)  # .save(f"{name}2.jpg")
-            img = Image.new('1', (img1.size[0], img2.size[1] + img1.size[1] + 50), 255)  # 宽*高
-            img.paste(img1, (0, 0))
-            img.paste(img2, (0, img1.size[1] + 50))
-            img.show()
-            # img.save(osp.join(*OutPicturePATH, f"{name}.jpg"))
-            # fpic.draw("\n".join((s1,s2)), size=50).show()
-            # res = ocr.ocr("2.jpg", cls=False)[0]
-            # print("".join(adversarial_sample))
-            # print("".join(line[1][0] for line in res))
+        print(_input["x"])
+        print(adversarial_sample)
+        # if adversarial_sample is not None:
+        #     # s_list = [_input["x"], adversarial_sample]
+        #     s1, s2 = _input["x"], adversarial_sample
+        #     img1 = self.font.draw(s1, size=50)  # .save(f"{name}1.jpg")
+        #     img2 = self.font.draw(s2, size=50)  # .save(f"{name}2.jpg")
+        #     img = Image.new('1', (img1.size[0], img2.size[1] + img1.size[1] + 50), 255)  # 宽*高
+        #     img.paste(img1, (0, 0))
+        #     img.paste(img2, (0, img1.size[1] + 50))
+        #     img.show()
+        #     # img.save(osp.join(*OutPicturePATH, f"{name}.jpg"))
+        #     # fpic.draw("\n".join((s1,s2)), size=50).show()
+        #     # res = ocr.ocr("2.jpg", cls=False)[0]
+        #     # print("".join(adversarial_sample))
+        #     # print("".join(line[1][0] for line in res))
 
 
 if __name__ == "__main__":

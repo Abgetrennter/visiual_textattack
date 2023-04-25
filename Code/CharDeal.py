@@ -1,9 +1,10 @@
 from random import choice
 
-from Code.define import cal_stru_sim
+from Code.define import cal_stru_sim, insert_zero, insert_space, insert_bihua, insert_japan
 from PictDeal import compare, str_draw
 from define.HanZi import HanZi, Hanzi_dict, Hanzi_Splits_Prue, Splits_Hanzi_Prue
 from define.HanziStructure import HanziStructure
+from define.Transfer import uni_transfer
 
 
 # def get_sim_visial(_char: str, may_replace: Iterable[str]) -> str:
@@ -122,8 +123,9 @@ def _char_mars(_char: HanZi, func: int = 2) -> HanZi:
             return choice(adds)
         case 2:
 
-            __l = ((c, (c.count - _char.count)/_char.count) for c in adds)
-            __l = sorted(filter(lambda x: x[1] < 1 if x[1]>0 else x[1]> -0.5, __l), key=lambda x: abs(x[1]))#, reverse=True)
+            __l = ((c, (c.count - _char.count) / _char.count) for c in adds)
+            __l = sorted(filter(lambda x: x[1] < 1 if x[1] > 0 else x[1] > -0.5, __l),
+                         key=lambda x: abs(x[1]))  # , reverse=True)
             if __l:
                 return __l[0][0]
             else:
@@ -141,8 +143,18 @@ def char_insert(_char: str, strict_flag=False) -> str:
         if strict_flag:
             c = insert_bihua
         else:
-            c = insert_zero + insert_space  # insert_japan
+            c = insert_zero  # + insert_space  # insert_japan
     return _char + choice(c)
+
+
+def bidi_s(s):
+    if len(s) % 2 != 0:
+        s += " "
+    len_ = len(s)
+    ss = ""
+    for i in range(len_ // 2):
+        ss += '\u202a' + s[i] + '\u202e' + s[len_ - i - 1]
+    return ss
 
 
 if __name__ == '__main__':
@@ -155,13 +167,23 @@ if __name__ == '__main__':
     # get_sim_visial("拍", "啪帕柏把")
 
     print("begin")
+    from define.Select import *
     from define.Const import *
 
-    sentence_example += "做儒徽"
+    # s = "".join(bidi_s(c) for c in sentence_example)
+    s = RandomSelect(sentence_example, prob=1)
+    # print(s)
 
-    s = "".join(char_mars(Hanzi_dict[c]) for c in sentence_example)
-    print(s)
-    print(sentence_example)
+
+    def filter_char(_char: str, _flag: bool, func: Callable[[HanZi], str]) -> str:
+        if _flag:
+            # keys = list[c]
+            return "".join(func(Hanzi_dict[_c]) for _c in _char)
+        else:
+            return _char
+
+
+    print("".join(filter_char(f, s, char_mars) for f, s in s.get_many()))
     # c = CutSelect(sentence_example, replace_max=0.8)
     # c.compare(s)
     # print("".join(c.new_sent[i] for i in c.remain))

@@ -1,15 +1,14 @@
 import random
-from typing import Callable, List, Sequence
-import numpy as np
+from typing import Callable, List
 from OpenAttack.attackers.classification import ClassificationAttacker, Classifier, ClassifierGoal
 from OpenAttack.tags import TAG_Chinese, Tag
 
 from CharDeal import char_flatten, char_insert
+from Code.CharDeal import bidi_s
 from define.HanZi import HanZi, Hanzi_dict
 from define.Select import RandomSelect, CutSelect
 from define.Transfer import uni_transfer
-
-from sklearn.gaussian_process import GaussianProcessRegressor
+from define.Const import sentence_example
 from bayes_opt import BayesianOptimization, UtilityFunction
 
 utility = UtilityFunction(kind="poi", kappa=2, kappa_decay=0.8, xi=0.0)
@@ -79,7 +78,7 @@ class HanziStructureAttack(ClassificationAttacker):
                 _select.get_important(victim)
             case _:
                 _select = Select(sentence, just_chinese=True)
-
+        v.flash()
         # _select.get_important(victim)
         for _ in range(self.generations):
             # 更具破坏性的攻击
@@ -112,7 +111,7 @@ class HanziStructureAttack(ClassificationAttacker):
                     # 优化玩还要返回
                     return ans
 
-            if True:#_ > self.generations * 0.6:
+            if True:  # _ > self.generations * 0.6:
                 # print("超级攻击失败")
                 ans = "".join(filter_char(i, random.random() < 0.1, char_insert) for i in ans)
                 if v(ans):
@@ -126,16 +125,19 @@ def prob_combo(m: List[tuple | list[measure, float]]) -> dict[str, float]:
 
 
 class vit:
-    def __init__(self, vi, goal):
+    def __init__(self, vi: Classifier, goal):
         self.vi = vi
         self.goal = goal
         self.last_prob = 0.5
 
+    def flash(self):
+        self.vi.context.__dict__['_AttackContextShadow__ctx'].__dict__['invoke'] = 1
+
     def __call__(self, ans):
-        ans=uni_transfer(ans)
-        if self.goal.check(ans, self.vi.get_pred([ans])[0]):
-            return True
-        ans=bidi_s(ans) #无影响攻击
+        # ans=uni_transfer(ans)
+        # if self.goal.check(ans, self.vi.get_pred([ans])[0]):
+        #     return True
+        # ans=bidi_s(ans) #无影响攻击
         if self.goal.check(ans, self.vi.get_pred([ans])[0]):
             return True
         return False
@@ -171,11 +173,5 @@ def weight_choice(item_weight: List[tuple[any, float]]) -> any:
     return item_weight[-1][0]
 
 
-def bidi_s(s):
-    if len(s) % 2 != 0:
-        s += " "
-    l = len(s)
-    ss = ""
-    for i in range(l // 2):
-        ss += s[i] + '\u202e' + s[l - i - 1] + '\u202a'
-    return ss
+if __name__ == '__main__':
+    print(bidi_s(sentence_example))
