@@ -7,3 +7,5 @@
 *.jpg
 /other/
 *.dbx
+*.doc
+*.docx
